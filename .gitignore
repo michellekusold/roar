@@ -1,0 +1,37 @@
+# Built application files
+/*/build/
+/build
+
+# Gradle generated files
+.gradle
+
+# Signing files
+.signing/
+
+# Local configuratino file (sdk path, etc)
+/local.properties
+
+/.idea/workspace.xml
+/.idea/libraries
+/.idea/tasks.xml
+/.idea/.name
+/.idea/compiler.xml
+/.idea/copyright/profiles_settings.xml
+/.idea/encodings.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/scopes/scope_settings.xml
+/.idea/vcs.xml
+*.iml
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# log files
+*.log
