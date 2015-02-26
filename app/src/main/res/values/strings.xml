@@ -8,5 +8,6 @@
     <string name="title_activity_event_feed">EventFeed</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_create_profile">CreateProfile</string>
+    <string name="title_activity_sign_in">SignInActivity</string>
 
 </resources>
