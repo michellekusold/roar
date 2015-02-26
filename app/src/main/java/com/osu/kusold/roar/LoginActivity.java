@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
-import android.content.ContentResolver;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
@@ -29,6 +28,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 
 /**
@@ -53,6 +53,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private Firebase fRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +61,18 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         setContentView(R.layout.activity_login);
         Firebase.setAndroidContext(this);
 
-        Firebase myFirebaseRef = new Firebase("https://torid-heat-1512.firebaseio.com/");
-        myFirebaseRef.child("test").setValue("This is coming from a mobile app!");
+        Firebase fRef = new Firebase("https://torid-heat-1512.firebaseio.com/");
 
+        fRef.addAuthStateListener(new Firebase.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(AuthData authData) {
+                if (authData != null) {
+                    // user is logged in
+                } else {
+                    // user is not logged in
+                }
+            }
+        });
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -306,6 +316,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             showProgress(false);
         }
     }
+
+
+
+
 }
 
 

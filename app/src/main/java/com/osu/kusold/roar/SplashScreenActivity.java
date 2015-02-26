@@ -26,7 +26,7 @@ public class SplashScreenActivity extends Activity {
             public void run() {
                 // This method will be executed once the timer is over
                 // Start your app main activity
-                int deleteMeforLogic = 1;
+                int deleteMeforLogic = 0;
                 Intent i;
 
                 // make logic if new user: signup
