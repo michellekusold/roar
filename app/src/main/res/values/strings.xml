@@ -2,12 +2,24 @@
 <resources>
 
     <string name="app_name">Roar</string>
+
+    <!-- ACTIVITES -->
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
-    <string name="action_settings">Settings</string>
-    <string name="white">#FFFFFF</string>
-    <string name="title_activity_event_feed">EventFeed</string>
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_create_profile">CreateProfile</string>
     <string name="title_activity_sign_in">SignInActivity</string>
+    <string name="title_activity_event_feed">EventFeed</string>
+
+
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+
+
+
+    <!--  COLOR SCHEME -->
+    <string name="white">#FFFFFF</string>
+    <string name="orange">#DD5E37</string>
+    <string name="brown">#956D4D</string>
+    <string name="green">#58654E</string>
+    <string name="grey">#44403D</string>
 
 </resources>

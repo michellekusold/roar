@@ -5,13 +5,12 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
-import android.content.ContentResolver;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -26,13 +25,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.firebase.client.AuthData;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
 
 /**
  * A login screen that offers login via email/password.
@@ -46,6 +44,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
 
     // UI references.
     private AutoCompleteTextView mEmailView;
+    private EditText mPasswordConfirmView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -56,7 +55,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_sign_up);
         Firebase.setAndroidContext(this);
 
         fRef = new Firebase("https://torid-heat-1512.firebaseio.com/");
@@ -66,7 +65,8 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mPasswordConfirmView = (EditText) findViewById(R.id.password_confirm);
+        mPasswordConfirmView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
@@ -81,12 +81,25 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                switchToLogin();
+            }
+        });
+
+        Button mEmailSignUpButton = (Button) findViewById(R.id.email_sign_up_button);
+        mEmailSignUpButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 attemptLogin();
             }
         });
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    private void switchToLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 
     private void populateAutoComplete() {
@@ -106,11 +119,11 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
 
         // Reset errors.
         mEmailView.setError(null);
-        mPasswordView.setError(null);
+        mPasswordConfirmView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String password = mPasswordConfirmView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -118,8 +131,8 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
+            mPasswordConfirmView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordConfirmView;
             cancel = true;
         }
 
@@ -286,8 +299,8 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
             if (success) {
                 finish();
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                mPasswordConfirmView.setError(getString(R.string.error_incorrect_password));
+                mPasswordConfirmView.requestFocus();
             }
         }
 
