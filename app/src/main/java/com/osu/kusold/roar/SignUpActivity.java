@@ -39,11 +39,11 @@ import java.util.Map;
  */
 public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> {
 
-    public final static String EMAIL_ADDRESS_MESSAGE = "com.osu.roar.SIGNUP_EMAIL_ADDRESS_MESSAGE";
+    public final static String EMAIL_ADDRESS_MESSAGE = "com.osu.roar.EMAIL_ADDRESS_MESSAGE";
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private UserSignUpTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -105,7 +105,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
     private void switchToLogin() {
         Intent intent = new Intent(this, LoginActivity.class);
         String emailAddress = mEmailView.getText().toString();
-        intent.putExtra(EMAIL_ADDRESS_MESSAGE, emailAddress);
+        intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, emailAddress);
         startActivity(intent);
     }
 
@@ -171,7 +171,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password, this);
+            mAuthTask = new UserSignUpTask(email, password, this);
             mAuthTask.execute((Void) null);
         }
     }
@@ -278,13 +278,13 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserSignUpTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mEmail;
         private final String mPassword;
         private Context mContext;
 
-        UserLoginTask(String email, String password, Context context) {
+        UserSignUpTask(String email, String password, Context context) {
             mEmail = email;
             mPassword = password;
             mContext = context;
@@ -304,6 +304,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                 @Override
                 public void onError(FirebaseError firebaseError) {
                     System.out.println("Error on creating user.");
+                    // Email taken, other error with creating user
                 }
             });
 
@@ -321,7 +322,10 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                 @Override
                 public void onAuthenticationError(FirebaseError firebaseError) {
                     System.out.println("Error on login after creating user.");
-                    switchToLogin();
+                    Intent intent = new Intent(mContext, LoginActivity.class);
+                    intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);
+                    intent.putExtra(LoginActivity.LOGIN_ERROR_MESSAGE, true);
+                    startActivity(intent);
                 }
             });
         }
