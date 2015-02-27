@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
@@ -25,6 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 
@@ -37,6 +39,7 @@ import java.util.Map;
  */
 public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> {
 
+    public final static String EMAIL_ADDRESS_MESSAGE = "com.osu.roar.SIGNUP_EMAIL_ADDRESS_MESSAGE";
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -55,6 +58,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent = getIntent();
         setContentView(R.layout.activity_sign_up);
         Firebase.setAndroidContext(this);
 
@@ -62,6 +66,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mEmailView.setText(intent.getStringExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE));
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -70,7 +75,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
+                    attemptSignUp();
                     return true;
                 }
                 return false;
@@ -89,7 +94,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         mEmailSignUpButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                attemptSignUp();
             }
         });
 
@@ -99,6 +104,8 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
 
     private void switchToLogin() {
         Intent intent = new Intent(this, LoginActivity.class);
+        String emailAddress = mEmailView.getText().toString();
+        intent.putExtra(EMAIL_ADDRESS_MESSAGE, emailAddress);
         startActivity(intent);
     }
 
@@ -106,35 +113,29 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         getLoaderManager().initLoader(0, null, this);
     }
 
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    public void attemptLogin() {
+    public void attemptSignUp() {
         if (mAuthTask != null) {
+            // This means they're logged in, so start intent for Event Newsfeed?
             return;
         }
 
         // Reset errors.
         mEmailView.setError(null);
+        mPasswordView.setError(null);
         mPasswordConfirmView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
-        String password = mPasswordConfirmView.getText().toString();
+        String password = mPasswordView.getText().toString();
+        String passwordConfirm = mPasswordConfirmView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
-
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordConfirmView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordConfirmView;
-            cancel = true;
-        }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
@@ -147,6 +148,21 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
             cancel = true;
         }
 
+        // Check for a valid password, if the user entered one.
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        } else if (!isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        } else if (!password.equals(passwordConfirm)) {
+            mPasswordConfirmView.setError(getString(R.string.error_invalid_confirm_password));
+            focusView = mPasswordConfirmView;
+            cancel = true;
+        }
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -155,19 +171,17 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(email, password, this);
             mAuthTask.execute((Void) null);
         }
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() > 7;
     }
 
     /**
@@ -268,19 +282,24 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
 
         private final String mEmail;
         private final String mPassword;
+        private Context mContext;
 
-        UserLoginTask(String email, String password) {
+        UserLoginTask(String email, String password, Context context) {
             mEmail = email;
             mPassword = password;
+            mContext = context;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-
+            /*
+             *  createUser does not login the user, so we will login the user and send to CreateProfileActivity
+             */
             fRef.createUser(mEmail, mPassword, new Firebase.ValueResultHandler<Map<String, Object>>() {
                 @Override
                 public void onSuccess(Map<String, Object> result) {
                     System.out.println("Successfully created user account with uid: " + result.get("uid"));
+                    loginAfterSignUp();
                 }
                 @Override
                 public void onError(FirebaseError firebaseError) {
@@ -289,6 +308,22 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
             });
 
             return true;
+        }
+
+        protected void loginAfterSignUp() {
+            fRef.authWithPassword(mEmail, mPassword, new Firebase.AuthResultHandler() {
+                @Override
+                public void onAuthenticated(AuthData authData) {
+                    System.out.println("User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
+                    Intent intent = new Intent(mContext, CreateProfileActivity.class);
+                    startActivity(intent);
+                }
+                @Override
+                public void onAuthenticationError(FirebaseError firebaseError) {
+                    System.out.println("Error on login after creating user.");
+                    switchToLogin();
+                }
+            });
         }
 
         @Override

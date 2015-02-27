@@ -37,7 +37,7 @@ import java.util.List;
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     // key const for sending email to sign up activity
-    public final static String EMAIL_ADDRESS_MESSAGE = "com.osu.roar.EMAIL_ADDRESS_MESSAGE";
+    public final static String EMAIL_ADDRESS_MESSAGE = "com.osu.roar.LOGIN_EMAIL_ADDRESS_MESSAGE";
     /**
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
@@ -60,6 +60,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent = getIntent();
         setContentView(R.layout.activity_login);
         Firebase.setAndroidContext(this);
 
@@ -78,6 +79,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mEmailView.setText(intent.getStringExtra(SignUpActivity.EMAIL_ADDRESS_MESSAGE));
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password_confirm);
@@ -114,8 +116,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     public void switchToSignUp() {
         Intent intent = new Intent(this, SignUpActivity.class);
-        //String emailAddress = mEmailView.getText().toString();
-        //intent.putExtra(EMAIL_ADDRESS_MESSAGE, emailAddress);
+        String emailAddress = mEmailView.getText().toString();
+        intent.putExtra(EMAIL_ADDRESS_MESSAGE, emailAddress);
         startActivity(intent);
     }
 
