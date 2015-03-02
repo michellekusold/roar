@@ -15,4 +15,7 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="error_invalid_email_or_password">Invalid email or password</string>
+    <string name="error_email_taken">The email account is already registered</string>
+    <string name="error_network_access">Network error</string>
+
 </resources>

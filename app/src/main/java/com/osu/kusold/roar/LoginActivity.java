@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,7 +41,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     // key const for sending email to sign up activity
     public final static String EMAIL_ADDRESS_MESSAGE = "com.osu.roar.EMAIL_ADDRESS_MESSAGE";
-    public final static String LOGIN_ERROR_MESSAGE = "com.osu.roar.EMAIL_ADDRESS_MESSAGE";
+    public final static String LOGIN_ERROR_MESSAGE = "com.osu.roar.LOGIN_ERROR_MESSAGE";
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -76,15 +77,15 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         // Check intent for email preset/errors from previous attempts
         Bundle extras = getIntent().getExtras();
         String emailPreset = "";
-        if(extras != null) {
-            emailPreset = extras.getString(EMAIL_ADDRESS_MESSAGE);
-            wasInvalidEmailOrPassword = extras.getBoolean(LOGIN_ERROR_MESSAGE);
+        if(!extras.isEmpty()) {
+            emailPreset = extras.getString(LoginActivity.EMAIL_ADDRESS_MESSAGE, "");
+            wasInvalidEmailOrPassword = extras.getBoolean(LoginActivity.LOGIN_ERROR_MESSAGE, false);
         }
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        mEmailView.setText(emailPreset);
         populateAutoComplete();
+        mEmailView.setText(emailPreset);
 
         mPasswordView = (EditText) findViewById(R.id.password_confirm);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -295,6 +296,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         private final String mEmail;
         private final String mPassword;
         private Context mContext;
+        private Intent intent;
 
         UserLoginTask(String email, String password, Context context) {
             mEmail = email;
@@ -308,14 +310,15 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             fRef.authWithPassword(mEmail, mPassword, new Firebase.AuthResultHandler() {
                 @Override
                 public void onAuthenticated(AuthData authData) {
-                    System.out.println("User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
-                    Intent intent = new Intent(mContext, CreateProfileActivity.class);
+                    Log.v("Login", "User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
+                    intent = new Intent(mContext, CreateProfileActivity.class);
                     startActivity(intent);
                 }
                 @Override
                 public void onAuthenticationError(FirebaseError firebaseError) {
-                    System.out.println("Error on login after creating user.");
-                    Intent intent = new Intent(mContext, LoginActivity.class);
+                    Log.v("Login", "Error on login.");
+                    Log.v("Login", "Email: " + mEmail + ", Password: " + mPassword);
+                    intent = new Intent(mContext, LoginActivity.class);
                     intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);
                     intent.putExtra(LoginActivity.LOGIN_ERROR_MESSAGE, true);
                     startActivity(intent);
@@ -333,8 +336,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             if (success) {
                 finish();
             } else {
-                //mPasswordView.setError(getString(R.string.error_incorrect_password));
-                //mPasswordView.requestFocus();
             }
         }
 

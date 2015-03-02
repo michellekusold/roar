@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -303,8 +304,25 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                 }
                 @Override
                 public void onError(FirebaseError firebaseError) {
-                    System.out.println("Error on creating user.");
-                    // Email taken, other error with creating user
+                    Log.v("Signup", "Error on creating user.");
+                    Log.v("Signup", "Email: " + mEmail + ", Password: " + mPassword);
+                    Log.v("Signup", firebaseError.toString());
+                    switch(firebaseError.getCode()) {
+                        case FirebaseError.EMAIL_TAKEN:
+                            mEmailView.setError(getString(R.string.error_email_taken));
+                            mEmailView.requestFocus();
+                            break;
+                        case FirebaseError.INVALID_EMAIL:
+                            mEmailView.setError(getString(R.string.error_invalid_email));
+                            mEmailView.requestFocus();
+                            break;
+                        case FirebaseError.NETWORK_ERROR:
+                            mEmailView.setError(getString(R.string.error_network_access));
+                            mEmailView.requestFocus();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             });
 
@@ -338,8 +356,6 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
             if (success) {
                 finish();
             } else {
-                mPasswordConfirmView.setError(getString(R.string.error_incorrect_password));
-                mPasswordConfirmView.requestFocus();
             }
         }
 
