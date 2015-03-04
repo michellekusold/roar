@@ -53,7 +53,6 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
     private View mProgressView;
     private View mLoginFormView;
 
-    // Firebase reference
     private Firebase fRef;
 
     @Override
@@ -63,7 +62,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         setContentView(R.layout.activity_sign_up);
         Firebase.setAndroidContext(this);
 
-        fRef = new Firebase("https://torid-heat-1512.firebaseio.com/");
+        fRef = new Firebase(getString(R.string.firebase_ref));
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -300,6 +299,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                 @Override
                 public void onSuccess(Map<String, Object> result) {
                     System.out.println("Successfully created user account with uid: " + result.get("uid"));
+                    fRef.child("users").child(result.get("uid").toString()).setValue(true);
                     loginAfterSignUp();
                 }
                 @Override

@@ -42,6 +42,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     // key const for sending email to sign up activity
     public final static String EMAIL_ADDRESS_MESSAGE = "com.osu.roar.EMAIL_ADDRESS_MESSAGE";
     public final static String LOGIN_ERROR_MESSAGE = "com.osu.roar.LOGIN_ERROR_MESSAGE";
+    public final static String AUTHDATA_MESSAGE = "com.osu.roar.AUTHDATA_MESSAGE";
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -52,6 +53,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+
     private Firebase fRef;
     private Boolean wasInvalidEmailOrPassword = false;
 
@@ -62,7 +64,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         //Firebase setup
         Firebase.setAndroidContext(this);
-        fRef = new Firebase("https://torid-heat-1512.firebaseio.com/");
+        fRef = new Firebase(getString(R.string.firebase_ref));
         fRef.addAuthStateListener(new Firebase.AuthStateListener() {
             @Override
             public void onAuthStateChanged(AuthData authData) {
@@ -312,6 +314,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 public void onAuthenticated(AuthData authData) {
                     Log.v("Login", "User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
                     intent = new Intent(mContext, CreateProfileActivity.class);
+                    intent.putExtra(LoginActivity.AUTHDATA_MESSAGE, authData.getUid());
                     startActivity(intent);
                 }
                 @Override

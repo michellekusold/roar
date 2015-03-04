@@ -5,13 +5,21 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.firebase.client.Firebase;
+
 
 public class EventFeedActivity extends ActionBarActivity {
+
+    private Firebase fRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_feed);
+
+        // Firebase root setup
+        Firebase.setAndroidContext(this);
+        fRef = new Firebase(getString(R.string.firebase_ref));
     }
 
 
