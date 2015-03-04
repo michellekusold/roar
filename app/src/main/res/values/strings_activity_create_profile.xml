@@ -3,6 +3,6 @@
 
     <string name="prompt_age">age</string>
     <string name="action_create_profile_submit">Enter</string>
-
+    <string name="prompt_name">name (public)</string>
 
 </resources>

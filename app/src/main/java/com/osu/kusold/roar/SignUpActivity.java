@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -299,7 +300,14 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                 @Override
                 public void onSuccess(Map<String, Object> result) {
                     System.out.println("Successfully created user account with uid: " + result.get("uid"));
-                    fRef.child("users").child(result.get("uid").toString()).setValue(true);
+                    fRef.child("users").child(result.get("uid").toString());
+
+                    // Allows splash screen to send to login screen as defualt now
+                    SharedPreferences settings = getPreferences(MODE_PRIVATE);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putBoolean(getString(R.string.is_new_user), false);
+                    editor.commit();
+
                     loginAfterSignUp();
                 }
                 @Override

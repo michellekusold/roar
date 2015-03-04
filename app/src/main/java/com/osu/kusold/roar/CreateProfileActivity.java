@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 
 import com.firebase.client.Firebase;
 
@@ -15,6 +16,8 @@ public class CreateProfileActivity extends ActionBarActivity {
 
     private Firebase fRef;
     private String authDataUid;
+    private NumberPicker mAgePicker;
+    private EditText mNameView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,20 +34,25 @@ public class CreateProfileActivity extends ActionBarActivity {
             authDataUid = extras.getString(LoginActivity.AUTHDATA_MESSAGE);
         }
 
+        mNameView = (EditText) findViewById(R.id.create_profile_name);
+        mAgePicker = (NumberPicker) findViewById(R.id.age_picker);
+        mAgePicker.setMinValue(18);
+        mAgePicker.setMaxValue(120);
+
         Button submitProfileButton = (Button) findViewById(R.id.create_profile_submit);
         submitProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Age is a number editable view
-                EditText editText = (EditText) findViewById(R.id.age);
-                submitProfile(Integer.parseInt(editText.getText().toString()));
+                submitProfile();
             }
         });
     }
 
     // Testing creating user information on Firebase, starting simply with age.
-    private void submitProfile(int age) {
-        fRef.child("users").child(authDataUid).child("age").setValue(age);
+    private void submitProfile() {
+        fRef.child("users").child(authDataUid).child("name").setValue(mNameView.getText().toString());
+        fRef.child("users").child(authDataUid).child("age").setValue(mAgePicker.getValue());
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
