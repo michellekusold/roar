@@ -1,5 +1,6 @@
 package com.osu.kusold.roar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -14,7 +15,7 @@ import com.firebase.client.Firebase;
 
 public class CreateProfileActivity extends ActionBarActivity {
 
-    private Firebase fRef;
+    private Firebase fRef, fRefUser;
     private String authDataUid;
     private NumberPicker mAgePicker;
     private EditText mNameView;
@@ -29,6 +30,7 @@ public class CreateProfileActivity extends ActionBarActivity {
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
         mUid = fRef.getAuth().getUid();
+        fRefUser = fRef.child("users").child(mUid);
         mNameView = (EditText) findViewById(R.id.create_profile_name);
         mAgePicker = (NumberPicker) findViewById(R.id.age_picker);
         mAgePicker.setMinValue(18);
@@ -41,10 +43,16 @@ public class CreateProfileActivity extends ActionBarActivity {
                 // Age is a number editable view
                 if(!isErrorInProfileInfo()) {
                     submitProfile();
+                    switchToEventNewsFeed();
                 }
 
             }
         });
+    }
+
+    private void switchToEventNewsFeed() {
+        Intent intent = new Intent(this, EventFeedActivity.class);
+        startActivity(intent);
     }
 
     private boolean isErrorInProfileInfo() {
@@ -58,8 +66,8 @@ public class CreateProfileActivity extends ActionBarActivity {
 
     // Testing creating user information on Firebase, starting simply with age.
     private void submitProfile() {
-        fRef.child("users").child(mUid).child("name").setValue(mNameView.getText().toString());
-        fRef.child("users").child(mUid).child("age").setValue(mAgePicker.getValue());
+        fRefUser.child("name").setValue(mNameView.getText().toString());
+        fRefUser.child("age").setValue(mAgePicker.getValue());
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
