@@ -18,6 +18,7 @@ public class CreateProfileActivity extends ActionBarActivity {
     private String authDataUid;
     private NumberPicker mAgePicker;
     private EditText mNameView;
+    private String mUid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,13 +28,7 @@ public class CreateProfileActivity extends ActionBarActivity {
         // Firebase root setup
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
-
-        // Check intent for authdata
-        Bundle extras = getIntent().getExtras();
-        if(!extras.isEmpty()) {
-            authDataUid = extras.getString(LoginActivity.AUTHDATA_MESSAGE);
-        }
-
+        mUid = fRef.getAuth().getUid();
         mNameView = (EditText) findViewById(R.id.create_profile_name);
         mAgePicker = (NumberPicker) findViewById(R.id.age_picker);
         mAgePicker.setMinValue(18);
@@ -44,15 +39,27 @@ public class CreateProfileActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
                 // Age is a number editable view
-                submitProfile();
+                if(!isErrorInProfileInfo()) {
+                    submitProfile();
+                }
+
             }
         });
     }
 
+    private boolean isErrorInProfileInfo() {
+        boolean result = false;
+        if(mNameView.getText().toString().isEmpty()) {
+            mNameView.setError(getString(R.string.error_field_required));
+            result = true;
+        }
+        return result;
+    }
+
     // Testing creating user information on Firebase, starting simply with age.
     private void submitProfile() {
-        fRef.child("users").child(authDataUid).child("name").setValue(mNameView.getText().toString());
-        fRef.child("users").child(authDataUid).child("age").setValue(mAgePicker.getValue());
+        fRef.child("users").child(mUid).child("name").setValue(mNameView.getText().toString());
+        fRef.child("users").child(mUid).child("age").setValue(mAgePicker.getValue());
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

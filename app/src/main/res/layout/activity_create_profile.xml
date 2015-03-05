@@ -12,7 +12,7 @@
 
     <EditText android:id="@+id/create_profile_name" android:layout_width="match_parent"
         android:layout_height="wrap_content" android:hint="@string/prompt_name"
-        android:imeOptions="actionUnspecified" android:inputType="number"
+        android:imeOptions="actionUnspecified" android:inputType="textPersonName"
         android:maxLines="1" android:singleLine="true" />
 
     <NumberPicker

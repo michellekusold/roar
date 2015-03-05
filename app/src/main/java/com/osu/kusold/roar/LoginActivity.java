@@ -298,48 +298,42 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         private final String mEmail;
         private final String mPassword;
         private Context mContext;
-        private Intent intent;
 
         UserLoginTask(String email, String password, Context context) {
             mEmail = email;
             mPassword = password;
-            mContext = context;
+            mContext = context.getApplicationContext();
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-
             fRef.authWithPassword(mEmail, mPassword, new Firebase.AuthResultHandler() {
                 @Override
                 public void onAuthenticated(AuthData authData) {
                     Log.v("Login", "User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
-                    intent = new Intent(mContext, CreateProfileActivity.class);
-                    intent.putExtra(LoginActivity.AUTHDATA_MESSAGE, authData.getUid());
-                    startActivity(intent);
                 }
                 @Override
                 public void onAuthenticationError(FirebaseError firebaseError) {
                     Log.v("Login", "Error on login.");
                     Log.v("Login", "Email: " + mEmail + ", Password: " + mPassword);
-                    intent = new Intent(mContext, LoginActivity.class);
-                    intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);
-                    intent.putExtra(LoginActivity.LOGIN_ERROR_MESSAGE, true);
-                    startActivity(intent);
                 }
             });
-
             return true;
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
+        protected void onPostExecute(Boolean success) {
             showProgress(false);
-
-            if (success) {
-                finish();
+            Intent intent;
+            if(fRef.getAuth() != null) {
+                intent = new Intent(mContext, CreateProfileActivity.class);
             } else {
+                intent = new Intent(mContext, LoginActivity.class);
+                intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);
+                intent.putExtra(LoginActivity.LOGIN_ERROR_MESSAGE, true);
             }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
 
         @Override
@@ -348,9 +342,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             showProgress(false);
         }
     }
-
-
-
 
 }
 

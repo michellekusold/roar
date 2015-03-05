@@ -284,11 +284,13 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         private final String mEmail;
         private final String mPassword;
         private Context mContext;
+        private Intent intent = new Intent();
+        private AuthData mAuthUid;
 
         UserSignUpTask(String email, String password, Context context) {
             mEmail = email;
             mPassword = password;
-            mContext = context;
+            mContext = context.getApplicationContext();
         }
 
         @Override
@@ -300,13 +302,13 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                 @Override
                 public void onSuccess(Map<String, Object> result) {
                     System.out.println("Successfully created user account with uid: " + result.get("uid"));
-                    fRef.child("users").child(result.get("uid").toString());
+                    fRef.child("users").child(result.get("uid").toString()).setValue(true);
 
                     // Allows splash screen to send to login screen as defualt now
                     SharedPreferences settings = getPreferences(MODE_PRIVATE);
                     SharedPreferences.Editor editor = settings.edit();
                     editor.putBoolean(getString(R.string.is_new_user), false);
-                    editor.commit();
+                    editor.apply();
 
                     loginAfterSignUp();
                 }
@@ -315,26 +317,30 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                     Log.v("Signup", "Error on creating user.");
                     Log.v("Signup", "Email: " + mEmail + ", Password: " + mPassword);
                     Log.v("Signup", firebaseError.toString());
-                    switch(firebaseError.getCode()) {
-                        case FirebaseError.EMAIL_TAKEN:
-                            mEmailView.setError(getString(R.string.error_email_taken));
-                            mEmailView.requestFocus();
-                            break;
-                        case FirebaseError.INVALID_EMAIL:
-                            mEmailView.setError(getString(R.string.error_invalid_email));
-                            mEmailView.requestFocus();
-                            break;
-                        case FirebaseError.NETWORK_ERROR:
-                            mEmailView.setError(getString(R.string.error_network_access));
-                            mEmailView.requestFocus();
-                            break;
-                        default:
-                            break;
-                    }
+                    handleCreateUserError(firebaseError);
                 }
             });
 
             return true;
+        }
+
+        protected void handleCreateUserError(FirebaseError firebaseError) {
+            switch(firebaseError.getCode()) {
+                case FirebaseError.EMAIL_TAKEN:
+                    mEmailView.setError(getString(R.string.error_email_taken));
+                    mEmailView.requestFocus();
+                    break;
+                case FirebaseError.INVALID_EMAIL:
+                    mEmailView.setError(getString(R.string.error_invalid_email));
+                    mEmailView.requestFocus();
+                    break;
+                case FirebaseError.NETWORK_ERROR:
+                    mEmailView.setError(getString(R.string.error_network_access));
+                    mEmailView.requestFocus();
+                    break;
+                default:
+                    break;
+            }
         }
 
         protected void loginAfterSignUp() {
@@ -342,16 +348,10 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                 @Override
                 public void onAuthenticated(AuthData authData) {
                     System.out.println("User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
-                    Intent intent = new Intent(mContext, CreateProfileActivity.class);
-                    startActivity(intent);
                 }
                 @Override
                 public void onAuthenticationError(FirebaseError firebaseError) {
                     System.out.println("Error on login after creating user.");
-                    Intent intent = new Intent(mContext, LoginActivity.class);
-                    intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);
-                    intent.putExtra(LoginActivity.LOGIN_ERROR_MESSAGE, true);
-                    startActivity(intent);
                 }
             });
         }
@@ -360,11 +360,16 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
             showProgress(false);
-
-            if (success) {
-                finish();
+            Intent intent;
+            if(fRef.getAuth() != null) {
+                intent = new Intent(mContext, CreateProfileActivity.class);
             } else {
+                intent = new Intent(mContext, LoginActivity.class);
+                intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);
+                intent.putExtra(LoginActivity.LOGIN_ERROR_MESSAGE, true);
             }
+
+            startActivity(intent);
         }
 
         @Override
