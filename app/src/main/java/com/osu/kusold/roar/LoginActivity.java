@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -62,8 +63,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        //Firebase setup
-        Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
         fRef.addAuthStateListener(new Firebase.AuthStateListener() {
             @Override
@@ -79,7 +78,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         // Check intent for email preset/errors from previous attempts
         Bundle extras = getIntent().getExtras();
         String emailPreset = "";
-        if(!extras.isEmpty()) {
+        if(extras != null) {
             emailPreset = extras.getString(LoginActivity.EMAIL_ADDRESS_MESSAGE, "");
             wasInvalidEmailOrPassword = extras.getBoolean(LoginActivity.LOGIN_ERROR_MESSAGE, false);
         }
@@ -326,7 +325,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             showProgress(false);
             Intent intent;
             if(fRef.getAuth() != null) {
-                intent = new Intent(mContext, CreateProfileActivity.class);
+                SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE);
+                if(settings.getBoolean(getString(R.string.is_profile_info_complete), false)) {
+                    intent = new Intent(mContext, EventFeedActivity.class);
+                } else {
+                    intent = new Intent(mContext, CreateProfileActivity.class);
+                }
             } else {
                 intent = new Intent(mContext, LoginActivity.class);
                 intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);

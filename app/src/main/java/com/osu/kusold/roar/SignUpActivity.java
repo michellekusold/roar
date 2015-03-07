@@ -61,7 +61,6 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         setContentView(R.layout.activity_sign_up);
-        Firebase.setAndroidContext(this);
 
         fRef = new Firebase(getString(R.string.firebase_ref));
 
@@ -303,13 +302,9 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                 public void onSuccess(Map<String, Object> result) {
                     System.out.println("Successfully created user account with uid: " + result.get("uid"));
                     fRef.child("users").child(result.get("uid").toString()).setValue(true);
-
-                    // Allows splash screen to send to login screen as defualt now
-                    SharedPreferences settings = getPreferences(MODE_PRIVATE);
-                    SharedPreferences.Editor editor = settings.edit();
+                    SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE).edit();
                     editor.putBoolean(getString(R.string.is_new_user), false);
                     editor.apply();
-
                     loginAfterSignUp();
                 }
                 @Override
@@ -362,7 +357,12 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
             showProgress(false);
             Intent intent;
             if(fRef.getAuth() != null) {
-                intent = new Intent(mContext, CreateProfileActivity.class);
+                SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE);
+                if(settings.getBoolean(getString(R.string.is_profile_info_complete), false)) {
+                    intent = new Intent(mContext, EventFeedActivity.class);
+                } else {
+                    intent = new Intent(mContext, CreateProfileActivity.class);
+                }
             } else {
                 intent = new Intent(mContext, LoginActivity.class);
                 intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);

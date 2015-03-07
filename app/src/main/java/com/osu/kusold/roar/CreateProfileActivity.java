@@ -1,6 +1,7 @@
 package com.osu.kusold.roar;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -43,14 +44,14 @@ public class CreateProfileActivity extends ActionBarActivity {
                 // Age is a number editable view
                 if(!isErrorInProfileInfo()) {
                     submitProfile();
-                    switchToEventNewsFeed();
+                    switchToEventFeed();
                 }
 
             }
         });
     }
 
-    private void switchToEventNewsFeed() {
+    private void switchToEventFeed() {
         Intent intent = new Intent(this, EventFeedActivity.class);
         startActivity(intent);
     }
@@ -68,6 +69,9 @@ public class CreateProfileActivity extends ActionBarActivity {
     private void submitProfile() {
         fRefUser.child("name").setValue(mNameView.getText().toString());
         fRefUser.child("age").setValue(mAgePicker.getValue());
+        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE).edit();
+        editor.putBoolean(getString(R.string.is_profile_info_complete), true);
+        editor.apply();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

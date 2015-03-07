@@ -1,7 +1,8 @@
 package com.osu.kusold.roar;
 
-import android.support.v7.app.ActionBarActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -20,6 +21,8 @@ public class EventFeedActivity extends ActionBarActivity {
         // Firebase root setup
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
+
+
     }
 
 
@@ -40,8 +43,17 @@ public class EventFeedActivity extends ActionBarActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_logout) {
+            actionBarLogout();
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void actionBarLogout() {
+        fRef.unauth();
+        Intent intent = new Intent(EventFeedActivity.this, LoginActivity.class);
+        startActivity(intent);
+    }
+
 }

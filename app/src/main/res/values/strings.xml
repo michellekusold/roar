@@ -9,11 +9,17 @@
     <string name="title_activity_create_profile">CreateProfile</string>
     <string name="title_activity_sign_in">SignInActivity</string>
     <string name="title_activity_event_feed">EventFeed</string>
+    <string name="title_activity_event_news_feed">EventNewsFeed</string>
+
 
     <!-- SHARE PREFERENCES -->
+    <string name="share_pref_file">roarPref</string>
     <string name="is_new_user">isNewUser</string>
+    <string name="is_profile_info_complete">isProfileComplete</string>
+
+    <!-- ACTION BAR MENU -->
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="action_logout">Logout</string>
 
     <!-- COLOR SCHEME -->
     <string name="white">#FFFFFF</string>
@@ -21,6 +27,7 @@
     <string name="brown">#956D4D</string>
     <string name="green">#58654E</string>
     <string name="grey">#44403D</string>
-    <string name="title_activity_event_news_feed">EventNewsFeed</string>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>
