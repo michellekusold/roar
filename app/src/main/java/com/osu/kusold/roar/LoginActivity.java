@@ -62,6 +62,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        Log.v("Create", "The LoginActivity onCreate was called.");
 
         fRef = new Firebase(getString(R.string.firebase_ref));
         fRef.addAuthStateListener(new Firebase.AuthStateListener() {
@@ -74,7 +75,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 }
             }
         });
-
+        
         // Check intent for email preset/errors from previous attempts
         Bundle extras = getIntent().getExtras();
         String emailPreset = "";
@@ -286,6 +287,30 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onResume();
+        Log.v("Start", "The LoginActivity onStart was called.");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.v("Pause", "The LoginActivity onPause was called.");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.v("Resume", "The LoginActivity onResume was called.");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onResume();
+        Log.v("Stop", "The LoginActivity onStop was called.");
     }
 
     /**

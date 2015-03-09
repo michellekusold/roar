@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
@@ -304,7 +305,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                     fRef.child("users").child(result.get("uid").toString()).setValue(true);
                     SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE).edit();
                     editor.putBoolean(getString(R.string.is_new_user), false);
-                    editor.apply();
+                    editor.commit();
                     loginAfterSignUp();
                 }
                 @Override
@@ -351,25 +352,35 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
             });
         }
 
+        /*
+         *  The login after creating a user is delayed to give Firebase a moment to
+         *  update its database, so that an inappropriate error is avoided.
+         */
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
             showProgress(false);
-            Intent intent;
-            if(fRef.getAuth() != null) {
-                SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE);
-                if(settings.getBoolean(getString(R.string.is_profile_info_complete), false)) {
-                    intent = new Intent(mContext, EventFeedActivity.class);
-                } else {
-                    intent = new Intent(mContext, CreateProfileActivity.class);
-                }
-            } else {
-                intent = new Intent(mContext, LoginActivity.class);
-                intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);
-                intent.putExtra(LoginActivity.LOGIN_ERROR_MESSAGE, true);
-            }
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    Intent intent;
+                    if(fRef.getAuth() != null) {
+                        Log.v("Login", "Uid" + fRef.getAuth().getUid());
+                        SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE);
+                        if(settings.getBoolean(getString(R.string.is_profile_info_complete), false)) {
+                            intent = new Intent(mContext, EventFeedActivity.class);
+                        } else {
+                            intent = new Intent(mContext, CreateProfileActivity.class);
+                        }
+                    } else {
+                        intent = new Intent(mContext, LoginActivity.class);
+                        intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);
+                        intent.putExtra(LoginActivity.LOGIN_ERROR_MESSAGE, true);
+                    }
+                    startActivity(intent);
+                } // public void run
+            }, 2000); // Handler
 
-            startActivity(intent);
         }
 
         @Override
