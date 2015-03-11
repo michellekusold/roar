@@ -18,8 +18,9 @@
     <string name="is_profile_info_complete">isProfileComplete</string>
 
     <!-- ACTION BAR MENU -->
+    <string name="action_create_event">Roar Event</string>
+    <string name="action_search">Search</string>
     <string name="action_settings">Settings</string>
-    <string name="action_logout">Logout</string>
     <string-array name="drawer_option_strings">
         <item>Event Feed</item>
         <item>My Events</item>
@@ -28,14 +29,6 @@
     </string-array>
     <string name="drawer_open">Drawer Open</string>
     <string name="drawer_closed">Drawer Closed</string>
-
-
-    <!-- COLOR SCHEME -->
-    <string name="white">#FFFFFF</string>
-    <string name="orange">#DD5E37</string>
-    <string name="brown">#956D4D</string>
-    <string name="green">#58654E</string>
-    <string name="grey">#44403D</string>
 
     <string name="hello_world">Hello world!</string>
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- COLOR SCHEME -->
+    <color name="yellow">#F2CF5F</color>
+    <color name="orange">#DD5E37</color>
+    <color name="brown">#956D4D</color>
+    <color name="green">#58654E</color>
+    <color name="grey">#44403D</color>
+    <color name="white">#FFFFFF</color>
+
+</resources>

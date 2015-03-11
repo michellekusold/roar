@@ -60,10 +60,10 @@ public class EventFeedActivity extends ActionBarActivity {
         };
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-        if(getActionBar() != null) {
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-            getActionBar().setHomeButtonEnabled(true);
-            getActionBar().setLogo(R.drawable.ic_launcher);
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setLogo(R.drawable.ic_launcher);
         }
     }
 
@@ -71,7 +71,7 @@ public class EventFeedActivity extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_event_feed, menu);
+        getMenuInflater().inflate(R.menu.event_feed_actions, menu);
         return true;
     }
 
@@ -80,19 +80,10 @@ public class EventFeedActivity extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.action_logout) {
-            actionBarLogout();
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
-    private void actionBarLogout() {
+    private void logout() {
         fRef.unauth();
         Intent intent = new Intent(EventFeedActivity.this, LoginActivity.class);
         startActivity(intent);
@@ -108,8 +99,12 @@ public class EventFeedActivity extends ActionBarActivity {
     /** Swaps fragments in the main content view */
     private void selectItem(int position, long id) {
         // Highlight the selected item, update the title, and close the drawer
+        if(position == 3) {
+            logout();
+        } else {
+            setTitle(mDrawerTitles[position]);
+        }
         mDrawerList.setItemChecked(position, true);
-        setTitle(mDrawerTitles[position]);
         mDrawerLayout.closeDrawer(mDrawerList);
     }
 }
