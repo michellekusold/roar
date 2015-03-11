@@ -63,6 +63,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         Intent intent = getIntent();
         setContentView(R.layout.activity_sign_up);
 
+        Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
 
         // Set up the login form.

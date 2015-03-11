@@ -2,9 +2,15 @@ package com.osu.kusold.roar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.firebase.client.Firebase;
 
@@ -12,6 +18,10 @@ import com.firebase.client.Firebase;
 public class EventFeedActivity extends ActionBarActivity {
 
     private Firebase fRef;
+    private String[] mDrawerTitles;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +32,39 @@ public class EventFeedActivity extends ActionBarActivity {
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
 
+        mDrawerTitles = getResources().getStringArray(R.array.drawer_option_strings);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
+        // Set the adapter for the list view
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, mDrawerTitles));
+        // Set the list's click listener
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_closed) {
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                if(getActionBar() != null) {
+                    getActionBar().setTitle("Event Feed");
+                }
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                if(getActionBar() != null) {
+                    getActionBar().setTitle("Drawer Open");
+                }
+            }
+        };
+
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        if(getActionBar() != null) {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+            getActionBar().setHomeButtonEnabled(true);
+            getActionBar().setLogo(R.drawable.ic_launcher);
+        }
     }
 
 
@@ -56,4 +98,18 @@ public class EventFeedActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            selectItem(position, id);
+        }
+    }
+
+    /** Swaps fragments in the main content view */
+    private void selectItem(int position, long id) {
+        // Highlight the selected item, update the title, and close the drawer
+        mDrawerList.setItemChecked(position, true);
+        setTitle(mDrawerTitles[position]);
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
 }

@@ -39,10 +39,6 @@
             android:name=".SignUpActivity"
             android:label="@string/title_activity_sign_in" >
         </activity>
-        <activity
-            android:name=".EventNewsFeed"
-            android:label="@string/title_activity_event_news_feed" >
-        </activity>
     </application>
 
 </manifest>

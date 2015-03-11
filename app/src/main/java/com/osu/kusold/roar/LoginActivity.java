@@ -64,6 +64,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         setContentView(R.layout.activity_login);
         Log.v("Create", "The LoginActivity onCreate was called.");
 
+        Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
         fRef.addAuthStateListener(new Firebase.AuthStateListener() {
             @Override
@@ -75,7 +76,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 }
             }
         });
-        
+
         // Check intent for email preset/errors from previous attempts
         Bundle extras = getIntent().getExtras();
         String emailPreset = "";

@@ -20,6 +20,15 @@
     <!-- ACTION BAR MENU -->
     <string name="action_settings">Settings</string>
     <string name="action_logout">Logout</string>
+    <string-array name="drawer_option_strings">
+        <item>Event Feed</item>
+        <item>My Events</item>
+        <item>Profile</item>
+        <item>Logout</item>
+    </string-array>
+    <string name="drawer_open">Drawer Open</string>
+    <string name="drawer_closed">Drawer Closed</string>
+
 
     <!-- COLOR SCHEME -->
     <string name="white">#FFFFFF</string>
