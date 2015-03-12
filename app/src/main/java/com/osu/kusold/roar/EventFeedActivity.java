@@ -3,6 +3,7 @@ package com.osu.kusold.roar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
@@ -22,6 +23,7 @@ public class EventFeedActivity extends ActionBarActivity {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
+    private android.support.v7.widget.Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,9 @@ public class EventFeedActivity extends ActionBarActivity {
         // Firebase root setup
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
+
+        mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(mToolbar);
 
         mDrawerTitles = getResources().getStringArray(R.array.drawer_option_strings);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -45,25 +50,24 @@ public class EventFeedActivity extends ActionBarActivity {
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                if(getActionBar() != null) {
-                    getActionBar().setTitle("Event Feed");
-                }
             }
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                if(getActionBar() != null) {
-                    getActionBar().setTitle("Drawer Open");
+                if(getSupportActionBar() != null) {
+                    getSupportActionBar().setTitle("Roar");
                 }
             }
         };
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         if(getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeButtonEnabled(true);
-            getSupportActionBar().setLogo(R.drawable.ic_launcher);
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.setLogo(R.drawable.ic_launcher);
+            actionBar.setDisplayUseLogoEnabled(true);
+            actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setDisplayShowTitleEnabled(false);
         }
     }
 
@@ -80,6 +84,10 @@ public class EventFeedActivity extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
