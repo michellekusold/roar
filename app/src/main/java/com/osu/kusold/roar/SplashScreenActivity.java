@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import com.firebase.client.Firebase;
 
@@ -52,12 +53,15 @@ public class SplashScreenActivity extends Activity {
                 else {
                     // If logged in
                     if(fRef.getAuth() != null) {
-                        if(settings.getBoolean(getString(R.string.is_profile_info_complete), false)) {
+                        if(settings.getBoolean(fRef.getAuth().getUid() + getString(R.string.is_profile_info_complete), false)) {
                             // user has account, is logged in, and profile is complete
                             i = new Intent(SplashScreenActivity.this, EventFeedActivity.class);
+                            Log.v("InitialActivity", "User: " + fRef.getAuth().getUid() + " is logged in.");
+
                         } else {
                             // User has account, is logged in, but profile is not complete
                             i = new Intent(SplashScreenActivity.this, CreateProfileActivity.class);
+                            Log.v("InitialActivity", "User: " + fRef.getAuth().getUid() + " is creating profile.");
                         }
 
                     } else {
@@ -65,8 +69,6 @@ public class SplashScreenActivity extends Activity {
                         i = new Intent(SplashScreenActivity.this, LoginActivity.class);
                     }
                 }
-                // TODO: this is for testing the createProfile. delete this shit yo
-                //i = new Intent(SplashScreenActivity.this, CreateProfileActivity.class);
                 startActivity(i);
 
                 // close this activity

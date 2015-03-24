@@ -352,7 +352,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             Intent intent;
             if(fRef.getAuth() != null) {
                 SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE);
-                if(settings.getBoolean(getString(R.string.is_profile_info_complete), false)) {
+                if(settings.getBoolean(fRef.getAuth().getUid() + getString(R.string.is_profile_info_complete), false)) {
                     intent = new Intent(mContext, EventFeedActivity.class);
                 } else {
                     intent = new Intent(mContext, CreateProfileActivity.class);
