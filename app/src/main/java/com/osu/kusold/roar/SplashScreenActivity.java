@@ -65,7 +65,8 @@ public class SplashScreenActivity extends Activity {
                         i = new Intent(SplashScreenActivity.this, LoginActivity.class);
                     }
                 }
-
+                // TODO: this is for testing the createProfile. delete this shit yo
+                //i = new Intent(SplashScreenActivity.this, CreateProfileActivity.class);
                 startActivity(i);
 
                 // close this activity

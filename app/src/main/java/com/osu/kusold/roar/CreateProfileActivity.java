@@ -2,25 +2,46 @@ package com.osu.kusold.roar;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.NumberPicker;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.firebase.client.Firebase;
+
+import java.io.ByteArrayOutputStream;
 
 
 public class CreateProfileActivity extends ActionBarActivity {
 
     private Firebase fRef, fRefUser;
     private String authDataUid;
+    private ImageButton mProfilePic;
     private NumberPicker mAgePicker;
     private EditText mNameView;
     private String mUid;
+    private Spinner mGenderOptions;
+
+    private static int RESULT_LOAD_IMG = 1;
+    String imgDecodableString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,10 +53,20 @@ public class CreateProfileActivity extends ActionBarActivity {
         fRef = new Firebase(getString(R.string.firebase_ref));
         mUid = fRef.getAuth().getUid();
         fRefUser = fRef.child("users").child(mUid);
+
+        mProfilePic = (ImageButton) findViewById(R.id.addProfileImg);
+        mProfilePic.setImageResource(R.drawable.add_prof_img);
+        mProfilePic.setOnClickListener(profPicSelector);
+
         mNameView = (EditText) findViewById(R.id.create_profile_name);
         mAgePicker = (NumberPicker) findViewById(R.id.age_picker);
         mAgePicker.setMinValue(18);
         mAgePicker.setMaxValue(120);
+
+        mGenderOptions = (Spinner) findViewById(R.id.genderOptions);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.gender_options, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mGenderOptions.setAdapter(adapter);
 
         Button submitProfileButton = (Button) findViewById(R.id.create_profile_submit);
         submitProfileButton.setOnClickListener(new View.OnClickListener() {
@@ -49,6 +80,55 @@ public class CreateProfileActivity extends ActionBarActivity {
 
             }
         });
+    }
+
+    private View.OnClickListener profPicSelector =new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+            // Create intent to Open Image applications like Gallery, Google Photos
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            // Start the Intent
+            startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
+
+        }
+    };
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+            // When an Image is picked
+            if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK
+                    && null != data) {
+                // Get the Image from data
+
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+                // Get the cursor
+                Cursor cursor = getContentResolver().query(selectedImage,
+                        filePathColumn, null, null, null);
+                // Move to first row
+                cursor.moveToFirst();
+
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                imgDecodableString = cursor.getString(columnIndex);
+                cursor.close();
+                ImageButton imgBtn = (ImageButton) findViewById(R.id.addProfileImg);
+                imgBtn.setImageURI(selectedImage);
+                // Set the Image in ImageView after decoding the String
+                //imgBtn.setImageBitmap(BitmapFactory
+                //        .decodeFile(imgDecodableString));
+
+            } else {
+                Toast.makeText(this, "You haven't picked Image",
+                        Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
+                    .show();
+        }
+
     }
 
     private void switchToEventFeed() {
@@ -65,10 +145,20 @@ public class CreateProfileActivity extends ActionBarActivity {
         return result;
     }
 
-    // Testing creating user information on Firebase, starting simply with age.
+    // Storing information into FireBase
     private void submitProfile() {
+        Bitmap profBmp = drawableToBitmap(mProfilePic.getDrawable());
+        ByteArrayOutputStream bYtE = new ByteArrayOutputStream();
+        profBmp.compress(Bitmap.CompressFormat.PNG, 100, bYtE);
+        //profBmp.recycle();
+        byte[] byteArray = bYtE.toByteArray();
+        String imageFile = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
+        fRefUser.child("photo").setValue(imageFile);
         fRefUser.child("name").setValue(mNameView.getText().toString());
         fRefUser.child("age").setValue(mAgePicker.getValue());
+        fRefUser.child("gender").setValue(mGenderOptions.getSelectedItem().toString());
+
         SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE).edit();
         editor.putBoolean(getString(R.string.is_profile_info_complete), true);
         editor.apply();
@@ -94,4 +184,18 @@ public class CreateProfileActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
 }
