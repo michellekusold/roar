@@ -30,7 +30,7 @@ import java.io.ByteArrayOutputStream;
 
 public class CreateProfileActivity extends ActionBarActivity {
 
-    private Firebase fRef, fRefUser;
+    private Firebase fRef, fRefUser, fRefProfile;
     private String authDataUid;
     private ImageButton mProfilePic;
     private NumberPicker mAgePicker;
@@ -51,16 +51,21 @@ public class CreateProfileActivity extends ActionBarActivity {
         fRef = new Firebase(getString(R.string.firebase_ref));
         mUid = fRef.getAuth().getUid();
         fRefUser = fRef.child("users").child(mUid);
+        fRefProfile = fRefUser.child("profile");
 
+        // set up input areas
+        // picture option
         mProfilePic = (ImageButton) findViewById(R.id.addProfileImg);
         mProfilePic.setImageResource(R.drawable.add_prof_img);
         mProfilePic.setOnClickListener(profPicSelector);
 
+        // name and age
         mNameView = (EditText) findViewById(R.id.create_profile_name);
         mAgePicker = (NumberPicker) findViewById(R.id.age_picker);
         mAgePicker.setMinValue(18);
         mAgePicker.setMaxValue(120);
 
+        // gender options
         mGenderOptions = (Spinner) findViewById(R.id.genderOptions);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.gender_options, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -80,6 +85,7 @@ public class CreateProfileActivity extends ActionBarActivity {
         });
     }
 
+    /* Method to handle getting the profile picture by launching the Gallery */
     private View.OnClickListener profPicSelector =new View.OnClickListener(){
         @Override
         public void onClick(View v) {
@@ -92,6 +98,7 @@ public class CreateProfileActivity extends ActionBarActivity {
         }
     };
 
+    /* Handles the image after the user has picked it */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
@@ -129,21 +136,33 @@ public class CreateProfileActivity extends ActionBarActivity {
 
     }
 
-    private void switchToEventFeed() {
-        Intent intent = new Intent(this, EventFeedActivity.class);
-        startActivity(intent);
+    /* Converts the image to a format storable in FireBase */
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
     }
 
     private boolean isErrorInProfileInfo() {
         boolean result = false;
+        // if no name
         if(mNameView.getText().toString().isEmpty()) {
             mNameView.setError(getString(R.string.error_field_required));
             result = true;
+            Toast.makeText(this, "You forgot to enter your name.",
+                    Toast.LENGTH_LONG).show();
         }
         return result;
     }
 
-    // Storing information into FireBase
+    /* Checks to see if valid data was entered and if so, stores it to Firebase*/
     private void submitProfile() {
         Bitmap profBmp = drawableToBitmap(mProfilePic.getDrawable());
         ByteArrayOutputStream bYtE = new ByteArrayOutputStream();
@@ -152,15 +171,17 @@ public class CreateProfileActivity extends ActionBarActivity {
         byte[] byteArray = bYtE.toByteArray();
         String imageFile = Base64.encodeToString(byteArray, Base64.DEFAULT);
 
-        fRefUser.child("photo").setValue(imageFile);
-        fRefUser.child("name").setValue(mNameView.getText().toString());
-        fRefUser.child("age").setValue(mAgePicker.getValue());
-        fRefUser.child("gender").setValue(mGenderOptions.getSelectedItem().toString());
+        // store the user's profile information
+        fRefProfile.child("photo").setValue(imageFile);
+        fRefProfile.child("name").setValue(mNameView.getText().toString());
+        fRefProfile.child("age").setValue(mAgePicker.getValue());
+        fRefProfile.child("gender").setValue(mGenderOptions.getSelectedItem().toString());
 
         SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE).edit();
         editor.putBoolean(fRef.getAuth().getUid() + R.string.is_profile_info_complete, true);
         editor.apply();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -183,17 +204,9 @@ public class CreateProfileActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static Bitmap drawableToBitmap (Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable)drawable).getBitmap();
-        }
-
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
+    /* The next intent logically to occur after profile creation has completed */
+    private void switchToEventFeed() {
+        Intent intent = new Intent(this, EventFeedActivity.class);
+        startActivity(intent);
     }
-
 }
