@@ -32,5 +32,6 @@
     <string name="drawer_closed">Drawer Closed</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_view_profile">ViewProfileActivity</string>
+    <string name="title_activity_create_event">CreateEventActivity</string>
 
 </resources>

@@ -45,6 +45,10 @@
             android:name=".ViewProfileActivity"
             android:label="@string/title_activity_view_profile" >
         </activity>
+        <activity
+            android:name=".CreateEventActivity"
+            android:label="@string/title_activity_create_event" >
+        </activity>
     </application>
 
 </manifest>

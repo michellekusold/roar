@@ -1,5 +1,6 @@
 package com.osu.kusold.roar;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -11,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.firebase.client.Firebase;
@@ -88,12 +90,21 @@ public class EventFeedActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+        else if (id == R.id.action_create_event){
+            Intent intent = new Intent(EventFeedActivity.this, CreateEventActivity.class);
+            startActivity(intent);
+        }
         return super.onOptionsItemSelected(item);
     }
 
     private void logout() {
         fRef.unauth();
         Intent intent = new Intent(EventFeedActivity.this, LoginActivity.class);
+        startActivity(intent);
+    }
+
+    private void createEvent() {
+        Intent intent = new Intent(EventFeedActivity.this, CreateEventActivity.class);
         startActivity(intent);
     }
 

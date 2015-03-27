@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="action_create_event_submit">Enter</string>
+    <string name="prompt_event_name">Whats it called?</string>
+    <string-array name="category_options">
+        <item>Arts and Culture</item>
+        <item>Career and Business</item>
+        <item>Cars and Motorcycles</item>
+        <item>Campus</item>
+        <item>Community and Environment</item>
+        <item>Education and Learning</item>
+        <item>Family</item>
+        <item>Fashion and Beauty</item>
+        <item>Fitness</item>
+        <item>Food and Drink</item>
+        v<item>Games</item>
+        <item>Hobbies and Crafts</item>
+        <item>LGBT</item>
+        <item>Language and Ethnic Culture</item>
+        <item>Lifestyle</item>
+        <item>Literature and Writing</item>
+        <item>Movies and Film</item>
+        <item>Music</item>
+        <item>Outdoors and Adventure</item>
+        <item>Pets and Animals</item>
+        <item>Politics and Movements</item>
+        <item>Photography</item>
+        <item>Religion and Beliefs</item>
+        <item>Sci-Fi and Fantasy</item>
+        <item>Sports and Recreation</item>
+        <item>Tech</item>
+    </string-array>
+
+</resources>
