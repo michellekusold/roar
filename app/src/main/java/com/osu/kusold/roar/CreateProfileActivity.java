@@ -31,7 +31,6 @@ import java.io.ByteArrayOutputStream;
 public class CreateProfileActivity extends ActionBarActivity {
 
     private Firebase fRef, fRefUser, fRefProfile;
-    private String authDataUid;
     private ImageButton mProfilePic;
     private NumberPicker mAgePicker;
     private EditText mNameView;
@@ -206,9 +205,9 @@ public class CreateProfileActivity extends ActionBarActivity {
 
     /* The next intent logically to occur after profile creation has completed */
     private void switchToEventFeed() {
-        Intent intent = new Intent(this, EventFeedActivity.class);
+        //Intent intent = new Intent(this, EventFeedActivity.class);
 // uncomment to test view profile
-//        Intent intent = new Intent(this, ViewProfileActivity.class);
+        Intent intent = new Intent(this, ViewProfileActivity.class);
         startActivity(intent);
     }
 }

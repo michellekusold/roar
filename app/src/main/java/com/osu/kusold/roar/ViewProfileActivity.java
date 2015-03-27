@@ -2,6 +2,7 @@ package com.osu.kusold.roar;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -30,7 +31,6 @@ import java.util.Map;
 public class ViewProfileActivity extends ActionBarActivity {
 
     private Firebase fRef, fRefUser, fRefProfile;
-    private String authDataUid;
     private ImageView mProfilePic;
     private TextView mAge, mName, mGender;
     private String age, name, gender, profilePic;
@@ -60,7 +60,12 @@ public class ViewProfileActivity extends ActionBarActivity {
                 name = profileData.get("name").toString();
                 gender = profileData.get("gender").toString();
                 age = profileData.get("age").toString();
+                profilePic = profileData.get("photo").toString();
 
+                Drawable dPic = decodeBase64(profilePic);
+
+                mProfilePic = (ImageView) findViewById(R.id.profileImg);
+                mProfilePic.setImageDrawable(dPic);
                 mName = (TextView) findViewById(R.id.profileName);
                 mName.setText(name);
                 mGender = (TextView) findViewById(R.id.profileGender);
@@ -73,12 +78,6 @@ public class ViewProfileActivity extends ActionBarActivity {
                 System.out.println("The read failed: " + firebaseError.getMessage());
             }
         });
-
-
-        // fill in the data fields
-        mProfilePic = (ImageView) findViewById(R.id.profileImg);
-        // TODO: replace this with a call to the user stored image
-        mProfilePic.setImageResource(R.drawable.add_prof_img);
 
         Button editProfileButton = (Button) findViewById(R.id.editProfile);
         editProfileButton.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +101,15 @@ public class ViewProfileActivity extends ActionBarActivity {
 
         return bitmap;
     }
+
+    public Drawable decodeBase64(String input)
+    {
+        byte[] decodedByte = Base64.decode(input, 0);
+        Bitmap bImg = BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
+        Drawable d = new BitmapDrawable(getResources(),bImg);
+        return d;
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
