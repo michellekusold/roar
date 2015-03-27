@@ -16,7 +16,7 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edit"
+        android:text="@string/edit"
         android:id="@+id/editProfile"
         android:layout_gravity="right" />
 
@@ -34,10 +34,10 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Name (public)" />
+            android:text="@string/name"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,16 +50,14 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1">
+        android:layout_height="wrap_content">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Age"
-            android:id="@+id/textView2"
-            android:layout_weight="0.33" />
+            android:text="@string/age"
+            android:id="@+id/textView2" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -75,12 +73,11 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:layout_width="121dp"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Gender"
-            android:id="@+id/textView3"
-            android:layout_weight=".33" />
+            android:text="@string/gender"
+            android:id="@+id/textView3" />
 
         <TextView
             android:layout_width="wrap_content"

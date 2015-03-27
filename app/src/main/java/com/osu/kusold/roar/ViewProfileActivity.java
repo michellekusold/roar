@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Map;
 
 /* Class to view the user's Profile */
 public class ViewProfileActivity extends ActionBarActivity {
@@ -30,7 +32,8 @@ public class ViewProfileActivity extends ActionBarActivity {
     private Firebase fRef, fRefUser, fRefProfile;
     private String authDataUid;
     private ImageView mProfilePic;
-    private TextView mAge, mNameView, mGender;
+    private TextView mAge, mName, mGender;
+    private String age, name, gender, profilePic;
     private String mUid;
 
     private static int RESULT_LOAD_IMG = 1;
@@ -48,13 +51,22 @@ public class ViewProfileActivity extends ActionBarActivity {
         fRefUser = fRef.child("users").child(mUid);
         fRefProfile = fRefUser.child("profile");
 
-        // get the data
-        DataSnapshot profileData;
 
-        fRefProfile.addValueEventListener(new ValueEventListener() {
+        fRefProfile.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                System.out.println(snapshot.getValue());
+                // do some stuff once
+                Map<String, Object> profileData = (Map<String, Object>) snapshot.getValue();
+                name = profileData.get("name").toString();
+                gender = profileData.get("gender").toString();
+                age = profileData.get("age").toString();
+
+                mName = (TextView) findViewById(R.id.profileName);
+                mName.setText(name);
+                mGender = (TextView) findViewById(R.id.profileGender);
+                mGender.setText(gender);
+                mAge = (TextView) findViewById(R.id.profileAge);
+                mAge.setText(age);
             }
             @Override
             public void onCancelled(FirebaseError firebaseError) {
@@ -62,19 +74,11 @@ public class ViewProfileActivity extends ActionBarActivity {
             }
         });
 
+
         // fill in the data fields
         mProfilePic = (ImageView) findViewById(R.id.profileImg);
         // TODO: replace this with a call to the user stored image
         mProfilePic.setImageResource(R.drawable.add_prof_img);
-
-        // name and age
-        mNameView = (TextView) findViewById(R.id.profileName);
-        mNameView.setText("USER NAME");
-        mGender = (TextView) findViewById(R.id.profileGender);
-        mGender.setText("MALE");
-        mAge = (TextView) findViewById(R.id.profileAge);
-        mAge.setText("100");
-
 
         Button editProfileButton = (Button) findViewById(R.id.editProfile);
         editProfileButton.setOnClickListener(new View.OnClickListener() {
