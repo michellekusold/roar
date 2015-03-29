@@ -7,7 +7,8 @@
 
     <!-- The main content view -->
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.osu.kusold.roar.EventFeedActivity">
 
@@ -16,7 +17,9 @@
         layout="@layout/tool_bar">
     </include>
 
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
+    <fragment android:name="com.osu.kusold.roar.EventFeedFragment"
+        android:id="@+id/event_feed_list_fragment"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tool_bar"/>
 

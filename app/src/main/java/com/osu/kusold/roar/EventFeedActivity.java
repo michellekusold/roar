@@ -1,6 +1,5 @@
 package com.osu.kusold.roar;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -12,14 +11,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Spinner;
 
 import com.firebase.client.Firebase;
 
 
-public class EventFeedActivity extends ActionBarActivity {
+public class EventFeedActivity extends ActionBarActivity implements EventFeedFragment.OnFragmentInteractionListener{
 
     private Firebase fRef;
     private String[] mDrawerTitles;
@@ -126,5 +123,13 @@ public class EventFeedActivity extends ActionBarActivity {
         }
         mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
+    /*
+    *   Fragment-to-activity communication require containter activity to
+    *   implement an interface with this method.
+     */
+    public void onFragmentInteraction(String id) {
+
     }
 }
