@@ -20,8 +20,6 @@ import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 
-import java.util.Map;
-
 
 public class EventFeedActivity extends ActionBarActivity implements EventFeedFragment.OnFragmentInteractionListener{
 
@@ -33,6 +31,7 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
     private android.support.v7.widget.Toolbar mToolbar;
     String mUid;
     double longitude, latitude;
+    GeoFire geoFire;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +45,7 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
         mUid = fRef.getAuth().getUid();
         fRefUser = fRef.child("users").child(mUid);
         fRefProfile = fRef.child("profile");
-        GeoFire geoFire = new GeoFire(fRefUser);
+        geoFire = new GeoFire(fRefUser);
 
         // get current long/lat of user
         LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
@@ -119,8 +118,7 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
             return true;
         }
         else if (id == R.id.action_create_event){
-            Intent intent = new Intent(EventFeedActivity.this, CreateEventActivity.class);
-            startActivity(intent);
+            createEvent();
         }
         return super.onOptionsItemSelected(item);
     }

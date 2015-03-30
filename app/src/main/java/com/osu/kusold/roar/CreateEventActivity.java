@@ -1,29 +1,35 @@
 package com.osu.kusold.roar;
 
 
+import android.content.Context;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.content.SharedPreferences;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import com.firebase.client.Firebase;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.widget.ListView;
 import android.widget.AdapterView;
-import android.content.Intent;
-import android.widget.EditText;
-import android.widget.DatePicker;
-import android.widget.TimePicker;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TimePicker;
+
+import com.firebase.client.Firebase;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 
 public class CreateEventActivity extends ActionBarActivity {
     // Firebase Variables
     private Firebase fRef, fRefEvents, fRefNewEvent;
+    private GeoFire geoFire;
     private String mUid;
 
     // Navigational Variables
@@ -54,6 +60,12 @@ public class CreateEventActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
 
+        // Firebase root setup
+        Firebase.setAndroidContext(this);
+        fRef = new Firebase(getString(R.string.firebase_ref));
+        fRefEvents = fRef.child("events");
+        geoFire = new GeoFire(fRef.child("GeoFire"));
+
         // ##### Set-up Input Areas
         // Name
         mEventName = (EditText) findViewById(R.id.create_event_name);
@@ -83,13 +95,6 @@ public class CreateEventActivity extends ActionBarActivity {
 
         // Description
         mEventDescription = (EditText) findViewById(R.id.etEventDescription);
-
-        // Firebase root setup
-        Firebase.setAndroidContext(this);
-        fRef = new Firebase(getString(R.string.firebase_ref));
-        fRefEvents = fRef.child("events");
-
-
 
         // ##### Top Bar and Settings Drawer #####
         mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.tool_bar);
@@ -188,10 +193,14 @@ public class CreateEventActivity extends ActionBarActivity {
 
         // ##### store the event's information #####
 
-        // Create Event Child
-        fRefNewEvent = fRefEvents.child(mEventName.getText().toString());
+        // Create Event Child (push generates a unique id for events (like users))
+        // The eventId is then used as the key in GeoFire, and this is how we get the
+        // key for nearby events.
+        fRefNewEvent = fRefEvents.push();
+        String eventId = fRefNewEvent.getKey();
+
         // Name
-        //fRefNewEvent.child("name").setValue(mNameView.getText().toString());
+        fRefNewEvent.child("name").setValue(mEventName.getText().toString());
         
         //Address
         fRefNewEvent.child("venue").setValue(mEventVenue.getText().toString());
@@ -222,15 +231,24 @@ public class CreateEventActivity extends ActionBarActivity {
         // Description
         fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
 
-        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE).edit();
-        editor.putBoolean(fRef.getAuth().getUid() + R.string.is_profile_info_complete, true);
-        editor.apply();
+        // Submit to GeoFire
+        // TODO: Currently we just use the GPS location, but it should be the long & lat of the event
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        double latitude, longitude;
+        if(location == null){
+            // GEOFIRE TEST VARS (S.E.L.)
+            latitude = 40.0016740;
+            longitude = -83.0134160;
+        }
+        else {
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+        }
+        geoFire.setLocation(eventId, new GeoLocation(latitude, longitude));
     }
 
-    /* The next intent logically to occur after profile creation has completed */
     private void switchToEventFeed() {
-        //Intent intent = new Intent(this, EventFeedActivity.class);
-// uncomment to test view profile
         Intent intent = new Intent(this, EventFeedActivity.class);
         startActivity(intent);
     }
