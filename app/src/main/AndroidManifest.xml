@@ -51,6 +51,11 @@
             android:name=".CreateEventActivity"
             android:label="@string/title_activity_create_event" >
         </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/api_key">
+        </meta-data>
     </application>
 
 </manifest>

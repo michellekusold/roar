@@ -3,6 +3,20 @@
 
     <string name="action_create_event_submit">Enter</string>
     <string name="prompt_event_name">Whats it called?</string>
+    <string name="event_name">Event Name</string>
+    <string name="location">Location</string>
+    <string name="venue_name">Venue Name</string>
+    <string name="address_1">Address Line 1</string>
+    <string name="address_2">Address Line 2</string>
+    <string name="city">City</string>
+    <string name="zip">Zip Code</string>
+    <string name="date_time">Date &amp; Time</string>
+    <string name="cost">Cost</string>
+    <string name="category">Category</string>
+    <string name="max_attendance">Max Attendance</string>
+    <string name="description">Description</string>
+    <string name="description_hint">Description of your event</string>
+
     <string-array name="category_options">
         <item>Arts and Culture</item>
         <item>Career and Business</item>

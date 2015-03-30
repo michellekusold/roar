@@ -3,6 +3,7 @@
 
     <string name="app_name">Roar</string>
     <string name="firebase_ref">https://torid-heat-1512.firebaseio.com/</string>
+    <string name="api_key">AIzaSyBjpvw6INQ7r2nbXUTLXlDfkTPl_fAT1xg</string>
 
     <!-- ACTIVITES -->
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
