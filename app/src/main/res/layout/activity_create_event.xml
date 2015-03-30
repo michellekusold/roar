@@ -43,7 +43,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Event Name"
+                    android:text="@string/event_name"
                     android:id="@+id/tvEventName" />
 
                 <EditText android:id="@+id/create_event_name" android:layout_width="match_parent"
@@ -55,7 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Location"
+                    android:text="@string/location"
                     android:id="@+id/tvLocation" />
 
                 <EditText
@@ -64,7 +64,7 @@
                     android:inputType="textPostalAddress"
                     android:ems="10"
                     android:id="@+id/etVenue"
-                    android:text="Venue Name" />
+                    android:hint="@string/venue_name" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -73,7 +73,7 @@
                     android:ems="10"
                     android:id="@+id/etAddressLine1"
                     android:layout_gravity="center_horizontal"
-                    android:text="Address Line 1" />
+                    android:hint="@string/address_1" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -81,7 +81,7 @@
                     android:inputType="textPostalAddress"
                     android:ems="10"
                     android:id="@+id/etAddressLine2"
-                    android:text="Address Line 2" />
+                    android:hint="@string/address_2" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -90,7 +90,7 @@
                     android:ems="10"
                     android:id="@+id/etCity"
                     android:layout_gravity="right"
-                    android:text="City" />
+                    android:hint="@string/city" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -98,13 +98,13 @@
                     android:inputType="textEmailAddress"
                     android:ems="10"
                     android:id="@+id/etZip"
-                    android:text="Zip Code" />
+                    android:hint="@string/zip" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Date and Time"
+                    android:text="@string/date_time"
                     android:id="@+id/tvDateAndTime" />
 
                 <DatePicker
@@ -122,7 +122,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Cost"
+                    android:text="@string/cost"
                     android:id="@+id/tvCost" />
 
                 <EditText
@@ -136,7 +136,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Category"
+                    android:text="@string/category"
                     android:id="@+id/tvCategory" />
 
                 <Spinner
@@ -150,7 +150,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Max Attendance"
+                    android:text="@string/max_attendance"
                     android:id="@+id/tvMaxAttendance" />
 
                 <EditText
@@ -165,7 +165,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Description"
+                    android:text="@string/description"
                     android:id="@+id/tvDescription" />
 
                 <EditText
@@ -174,7 +174,7 @@
                     android:inputType="textMultiLine"
                     android:ems="10"
                     android:id="@+id/etEventDescription"
-                    android:text="Description of your event goes here" />
+                    android:hint="@string/description_hint" />
 
                 <Button android:id="@+id/create_event_submit" style="?android:textAppearanceSmall"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
