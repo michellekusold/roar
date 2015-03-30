@@ -285,8 +285,6 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         private final String mEmail;
         private final String mPassword;
         private Context mContext;
-        private Intent intent = new Intent();
-        private AuthData mAuthUid;
 
         UserSignUpTask(String email, String password, Context context) {
             mEmail = email;
@@ -367,12 +365,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                     Intent intent;
                     if(fRef.getAuth() != null) {
                         Log.v("Login", "Uid" + fRef.getAuth().getUid());
-                        SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE);
-                        if(settings.getBoolean(getString(R.string.is_profile_info_complete), false)) {
-                            intent = new Intent(mContext, EventFeedActivity.class);
-                        } else {
-                            intent = new Intent(mContext, CreateProfileActivity.class);
-                        }
+                        intent = new Intent(mContext, CreateProfileActivity.class);
                     } else {
                         intent = new Intent(mContext, LoginActivity.class);
                         intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);

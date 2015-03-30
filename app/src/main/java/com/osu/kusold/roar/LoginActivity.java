@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -351,12 +350,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             showProgress(false);
             Intent intent;
             if(fRef.getAuth() != null) {
-                SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE);
-                if(settings.getBoolean(fRef.getAuth().getUid() + getString(R.string.is_profile_info_complete), false)) {
-                    intent = new Intent(mContext, EventFeedActivity.class);
-                } else {
-                    intent = new Intent(mContext, CreateProfileActivity.class);
-                }
+                intent = new Intent(mContext, EventFeedActivity.class);
             } else {
                 intent = new Intent(mContext, LoginActivity.class);
                 intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);
