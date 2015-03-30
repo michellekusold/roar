@@ -209,9 +209,11 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Map<String, Object> eventData = (Map<String, Object>) dataSnapshot.getValue();
-                            eventName = eventData.get("name").toString();
-                            mAdapter.add(eventName);
-                            Log.v("EventFetchTask", "Event: " + eventName + " added to EventNameList.");
+                            if(eventData != null) {
+                                eventName = eventData.get("name").toString();
+                                mAdapter.add(eventName);
+                                Log.v("EventFetchTask", "Event: " + eventName + " added to EventNameList.");
+                            }
                         }
 
                         @Override
