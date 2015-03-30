@@ -9,9 +9,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -176,8 +178,8 @@ public class CreateProfileActivity extends ActionBarActivity {
         fRefProfile.child("age").setValue(mAgePicker.getValue());
         fRefProfile.child("gender").setValue(mGenderOptions.getSelectedItem().toString());
 
-        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE).edit();
-        editor.putBoolean(fRef.getAuth().getUid() + R.string.is_profile_info_complete, true);
+        SharedPreferences.Editor editor = getApplicationContext().getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE).edit();
+        editor.putBoolean(fRef.getAuth().getUid() + getString(R.string.is_profile_info_complete), true);
         editor.apply();
     }
 

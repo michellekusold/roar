@@ -36,7 +36,7 @@ public class SplashScreenActivity extends Activity {
                 // This method will be executed once the timer is over
 
                 Intent i;
-                SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE);
+                SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE);
                 boolean isNewUser = settings.getBoolean(getString(R.string.is_new_user), true);
 
                 /*
@@ -68,5 +68,4 @@ public class SplashScreenActivity extends Activity {
         }, SPLASH_TIME_OUT);
 
     }
-
 }
