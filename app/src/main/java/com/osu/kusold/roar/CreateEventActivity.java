@@ -23,7 +23,7 @@ import android.widget.Button;
 
 public class CreateEventActivity extends ActionBarActivity {
     // Firebase Variables
-    private Firebase fRef, fRefUser, fRefEvent;
+    private Firebase fRef, fRefEvents, fRefNewEvent;
     private String mUid;
 
     // Navigational Variables
@@ -34,8 +34,6 @@ public class CreateEventActivity extends ActionBarActivity {
     private android.support.v7.widget.Toolbar mToolbar;
 
     // Event Variables
-    private Spinner mCategoryOptions;
-    private EditText mNameView;
     private EditText mEventName;
     private EditText mEventVenue;
     private EditText mEventAddress1;
@@ -45,6 +43,7 @@ public class CreateEventActivity extends ActionBarActivity {
     private DatePicker mEventDate;
     private TimePicker mEventTime;
     private EditText mEventCost;
+    private Spinner mCategoryOptions;
     private EditText mEventMaxAttendance;
     private EditText mEventDescription;
     private String mEvent;
@@ -54,13 +53,6 @@ public class CreateEventActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
-
-        // Firebase root setup
-        Firebase.setAndroidContext(this);
-        fRef = new Firebase(getString(R.string.firebase_ref));
-        mUid = fRef.getAuth().getUid();
-        fRefEvent = fRef.child("users").child(mUid);
-
 
         // ##### Set-up Input Areas
         // Name
@@ -91,6 +83,12 @@ public class CreateEventActivity extends ActionBarActivity {
 
         // Description
         mEventDescription = (EditText) findViewById(R.id.etEventDescription);
+
+        // Firebase root setup
+        Firebase.setAndroidContext(this);
+        fRef = new Firebase(getString(R.string.firebase_ref));
+        fRefEvents = fRef.child("events");
+
 
 
         // ##### Top Bar and Settings Drawer #####
@@ -189,31 +187,40 @@ public class CreateEventActivity extends ActionBarActivity {
     private void submitEvent() {
 
         // ##### store the event's information #####
+
+        // Create Event Child
+        fRefNewEvent = fRefEvents.child(mEventName.getText().toString());
         // Name
-        fRefEvent.child("name").setValue(mNameView.getText().toString());
+        //fRefNewEvent.child("name").setValue(mNameView.getText().toString());
         
         //Address
-        fRefEvent.child("venue").setValue(mEventVenue.getText().toString());
-        fRefEvent.child("address1").setValue(mEventAddress1.getText().toString());
-        fRefEvent.child("address2").setValue(mEventAddress2.getText().toString());
-        fRefEvent.child("city").setValue(mEventCity.getText().toString());
-        fRefEvent.child("zip").setValue(mEventZip.getText().toString());
+        fRefNewEvent.child("venue").setValue(mEventVenue.getText().toString());
+        fRefNewEvent.child("address1").setValue(mEventAddress1.getText().toString());
+        fRefNewEvent.child("address2").setValue(mEventAddress2.getText().toString());
+        fRefNewEvent.child("city").setValue(mEventCity.getText().toString());
+        fRefNewEvent.child("zip").setValue(mEventZip.getText().toString());
 
         // Date and time
-        fRefEvent.child("date").setValue(mEventDate.getCalendarView().getDate());
-        fRefEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + mEventTime.getCurrentMinute().toString());
+        fRefNewEvent.child("date").setValue(mEventDate.getCalendarView().getDate());
+
+        if (mEventTime.getCurrentMinute() < 10){
+            fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + "0" + mEventTime.getCurrentMinute().toString());
+        }
+        else {
+            fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + mEventTime.getCurrentMinute().toString());
+        }
 
         // Cost
-        fRefEvent.child("cost").setValue(mEventCost.getText().toString());
+        fRefNewEvent.child("cost").setValue(mEventCost.getText().toString());
 
         // Category
-        fRefEvent.child("category").setValue(mCategoryOptions.getSelectedItem().toString());
+        fRefNewEvent.child("category").setValue(mCategoryOptions.getSelectedItem().toString());
 
         // Max Attendance
-        fRefEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
+        fRefNewEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
 
         // Description
-        fRefEvent.child("description").setValue(mEventDescription.getText().toString());
+        fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
 
         SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE).edit();
         editor.putBoolean(fRef.getAuth().getUid() + R.string.is_profile_info_complete, true);
@@ -224,7 +231,7 @@ public class CreateEventActivity extends ActionBarActivity {
     private void switchToEventFeed() {
         //Intent intent = new Intent(this, EventFeedActivity.class);
 // uncomment to test view profile
-        Intent intent = new Intent(this, ViewProfileActivity.class);
+        Intent intent = new Intent(this, EventFeedActivity.class);
         startActivity(intent);
     }
 
