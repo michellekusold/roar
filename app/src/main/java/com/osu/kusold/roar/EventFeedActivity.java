@@ -1,6 +1,9 @@
 package com.osu.kusold.roar;
 
+import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -14,16 +17,22 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.firebase.client.Firebase;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+
+import java.util.Map;
 
 
 public class EventFeedActivity extends ActionBarActivity implements EventFeedFragment.OnFragmentInteractionListener{
 
-    private Firebase fRef;
+    private Firebase fRef, fRefUser, fRefProfile;
     private String[] mDrawerTitles;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private android.support.v7.widget.Toolbar mToolbar;
+    String mUid;
+    double longitude, latitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +42,27 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
         // Firebase root setup
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
+        // GeoFire setup
+        mUid = fRef.getAuth().getUid();
+        fRefUser = fRef.child("users").child(mUid);
+        fRefProfile = fRef.child("profile");
+        GeoFire geoFire = new GeoFire(fRefUser);
+
+        // get current long/lat of user
+        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if(location == null){
+            // GEOFIRE TEST VARS (S.E.L.)
+            latitude = 40.0016740;
+            longitude =-83.0134160;
+        }
+        else {
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+        }
+
+        // set the current location of a user
+        geoFire.setLocation("currentLocation", new GeoLocation(latitude, longitude));
 
         mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(mToolbar);
