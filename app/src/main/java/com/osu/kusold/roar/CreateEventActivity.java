@@ -1,10 +1,9 @@
 package com.osu.kusold.roar;
 
 
-import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
-import android.location.LocationManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.widget.DrawerLayout;
@@ -40,6 +39,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class CreateEventActivity extends ActionBarActivity {
     // Firebase Variables
@@ -200,7 +200,7 @@ public class CreateEventActivity extends ActionBarActivity {
 
         // Name
         fRefNewEvent.child("name").setValue(mEventName.getText().toString());
-
+        /*
         // Geocode address and store it as long/lat pair
         double longitude, latitude;
         String geoRequest = "https://maps.googleapis.com/maps/api/geocode/json?key=" + getString(R.string.api_key);
@@ -209,11 +209,35 @@ public class CreateEventActivity extends ActionBarActivity {
         geoRequest = geoRequest + ",+" + geoFormat(mEventCity);
         geoRequest = geoRequest + ",+" + geoFormat(mEventZip);
         geocodeAddr(geoRequest);
-
         Firebase fRefAddr1 = fRefNewEvent.child("address1");
         fRefAddr1.child("readable").setValue(mEventAddress1.getText().toString());
         fRefAddr1.child("latitude").setValue(geoLat);
         fRefAddr1.child("longitude").setValue(geoLong);
+        */
+        /*
+        *   Another GeoCode test
+         */
+        try {
+            Geocoder geocoder = new Geocoder(this);
+            String theEventAddress = mEventVenue.getText().toString() + " " + mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
+            Log.v("GeoCoder", "Address that will be input to GeoCoder: " + theEventAddress);
+            List<Address> address = geocoder.getFromLocationName(theEventAddress, 1);
+            if(address != null && address.size() > 0) {
+                Log.v("GeoCoder", "GeoCoder found at least 1 address associated with the event info.");
+                Address mAddr = address.get(0);
+                Log.v("GeoCoder", "(Lat, Long): " + mAddr.getLatitude() + " , " + mAddr.getLongitude());
+                Firebase fRefAddr1 = fRefNewEvent.child("address1");
+                fRefAddr1.child("readable").setValue(theEventAddress);
+                fRefAddr1.child("latitude").setValue(mAddr.getLatitude());
+                fRefAddr1.child("longitude").setValue(mAddr.getLongitude());
+                geoLat = mAddr.getLatitude();
+                geoLong = mAddr.getLongitude();
+            } else {
+                Log.v("GeoCoder", "GeoCoder found 0 address associated with the event info.");
+            }
+        } catch (Exception ex) {
+            Log.v("GeoCoder", "GeoCoder failed to translate address with exception: " + ex.toString());
+        }
 
         fRefNewEvent.child("venue").setValue(mEventVenue.getText().toString());
         fRefNewEvent.child("city").setValue(mEventCity.getText().toString());

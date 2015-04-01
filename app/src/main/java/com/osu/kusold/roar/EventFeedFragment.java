@@ -98,6 +98,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
                 refreshEventFeed();
             }
         });
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.yellow, R.color.green, R.color.orange);
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
@@ -199,7 +200,8 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
                 longitude = location.getLongitude();
                 latitude = location.getLatitude();
             }
-            final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude, longitude), 10.0);
+            Log.v("CurrentLocation", "GPS location on refresh (lag, long): " + latitude + " " + longitude);
+            final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude, longitude), 20.0);
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 int eventsRetreivedCount = 0;
                 String eventName = "test event name";
@@ -221,7 +223,6 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
 
                         }
                     });
-                    mSwipeRefreshLayout.setRefreshing(false);
                     eventsRetreivedCount++;
                     if(eventsRetreivedCount > 20) {
                         geoQuery.removeAllListeners();
@@ -253,6 +254,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
 
         @Override
         protected void onPostExecute(List<String> eventNames) {
+            mSwipeRefreshLayout.setRefreshing(false);
             Log.v("EventFetchTask", "Events: " + eventNames.size());
             for(String s : eventNames) {
                 mAdapter.add(s);
