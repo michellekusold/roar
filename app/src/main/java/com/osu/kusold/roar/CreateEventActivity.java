@@ -187,20 +187,10 @@ public class CreateEventActivity extends ActionBarActivity {
         // store the event id in the user created events DB
         mUid = fRef.getAuth().getUid();
         fRefUser = fRef.child("users").child(mUid);
+
         fRefUser.child("events").child("created").setValue(eventId);
-
-        // Name
-<<<<<<< HEAD
-        fRefEvent.child("name").setValue(mNameView.getText().toString());
-
-        //Address
-        fRefEvent.child("venue").setValue(mEventVenue.getText().toString());
-        fRefEvent.child("address1").setValue(mEventAddress1.getText().toString());
-        fRefEvent.child("address2").setValue(mEventAddress2.getText().toString());
-        fRefEvent.child("city").setValue(mEventCity.getText().toString());
-        fRefEvent.child("zip").setValue(mEventZip.getText().toString());
-=======
         fRefNewEvent.child("name").setValue(mEventName.getText().toString());
+
         // Geocoding
         Firebase fRefAddr1 = fRefNewEvent.child("address1");
         try {
@@ -209,7 +199,7 @@ public class CreateEventActivity extends ActionBarActivity {
             String theEventAddress = mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
             Log.v("GeoCoder", "Address that will be input to GeoCoder: " + theEventAddress);
             List<Address> address = geocoder.getFromLocationName(theEventAddress, 1);
-            if(address != null && address.size() > 0) {
+            if (address != null && address.size() > 0) {
                 Log.v("GeoCoder", "GeoCoder found at least 1 address associated with the event info.");
                 Address mAddr = address.get(0);
                 Log.v("GeoCoder", "(Lat, Long): " + mAddr.getLatitude() + " , " + mAddr.getLongitude());
@@ -223,26 +213,12 @@ public class CreateEventActivity extends ActionBarActivity {
                 Log.v("GeoCoder", "GeoCoder found 0 address associated with the event info.");
                 fRefAddr1.child("latitude").setValue(0);
                 fRefAddr1.child("longitude").setValue(0);
->>>>>>> origin/master
-
             }
-        } catch (Exception ex) {
-            Log.v("GeoCoder", "GeoCoder failed to translate address with exception: " + ex.toString());
+        }catch (Exception ex) {
+            Log.v("CreateEventActivity", "Error: " + ex.toString());
         }
-
-        fRefNewEvent.child("venue").setValue(mEventVenue.getText().toString());
-        fRefNewEvent.child("city").setValue(mEventCity.getText().toString());
-        fRefNewEvent.child("zip").setValue(mEventZip.getText().toString());
-
-        fRefNewEvent.child("address2").setValue(mEventAddress2.getText().toString());
-        Firebase fRefAddr = fRefNewEvent.child("address2");
-
-<<<<<<< HEAD
         // Attendance
-        fRefEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
-        fRefEvent.child("currentAttendance").setValue(0); //No people are attending at creation
-
-=======
+        fRefNewEvent.child("currentAttendance").setValue(0); //No people are attending at creation
         // Date and time
         fRefNewEvent.child("date").setValue(mEventDate.getCalendarView().getDate());
         if (mEventTime.getCurrentMinute() < 10){
@@ -257,22 +233,14 @@ public class CreateEventActivity extends ActionBarActivity {
         fRefNewEvent.child("category").setValue(mCategoryOptions.getSelectedItem().toString());
         // Max Attendance
         fRefNewEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
->>>>>>> origin/master
         // Description
         fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
         // Host
         fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
 
-<<<<<<< HEAD
-
-        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE).edit();
-        editor.putBoolean(fRef.getAuth().getUid() + R.string.is_profile_info_complete, true);
-        editor.apply();
-=======
         // Submit to GeoFire
         geoFire = new GeoFire(fRefNewEvent.child("GeoFire"));
         geoFire.setLocation(eventId, new GeoLocation(geoLat, geoLong));
->>>>>>> origin/master
     }
 
     private void switchToEventFeed() {

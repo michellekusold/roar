@@ -110,10 +110,7 @@
                 <DatePicker
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-<<<<<<< HEAD
-=======
                     android:calendarViewShown="false"
->>>>>>> origin/master
                     android:id="@+id/dpDate" />
 
                 <TimePicker
@@ -177,12 +174,9 @@
                     android:inputType="textMultiLine"
                     android:ems="10"
                     android:id="@+id/etEventDescription"
-<<<<<<< HEAD
                     android:text="Description of your event goes here" />
-=======
                     android:hint="@string/description_hint" />
->>>>>>> origin/master
-
+                
                 <Button android:id="@+id/create_event_submit" style="?android:textAppearanceSmall"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" android:text="@string/action_create_profile_submit"
