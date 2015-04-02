@@ -263,6 +263,8 @@ public class CreateEventActivity extends ActionBarActivity {
         fRefNewEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
         // Description
         fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
+        // Host
+        fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
 
         // Submit to GeoFire
         // TODO: Currently we just use the GPS location, but it should be the long & lat of the event
