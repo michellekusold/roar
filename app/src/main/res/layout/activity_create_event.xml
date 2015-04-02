@@ -177,7 +177,7 @@
                     android:id="@+id/etEventDescription"
                     android:hint="Description of your event" />
                     android:hint="@string/description_hint" />
-                
+
                 <Button android:id="@+id/create_event_submit" style="?android:textAppearanceSmall"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" android:text="@string/action_create_profile_submit"
