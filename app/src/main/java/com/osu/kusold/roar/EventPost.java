@@ -18,10 +18,12 @@ public class EventPost {
     public String maxAttendance;
     public String description;
     public String hostUid;
+    Map<String, Object> mEventData;
 
     public EventPost(Map<String, Object> eventData) {
+        mEventData = eventData;
         eventName = eventData.get("name").toString();
-        venue = eventData.get("venue").toString();
+        //venue = eventData.get("venue").toString();
         city = eventData.get("city").toString();
         zip = eventData.get("zip").toString();
 

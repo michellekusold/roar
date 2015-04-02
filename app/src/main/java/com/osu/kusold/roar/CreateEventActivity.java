@@ -58,6 +58,7 @@ public class CreateEventActivity extends ActionBarActivity {
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
         fRefEvents = fRef.child("events");
+        geoFire = new GeoFire(fRef.child("GeoFire"));
 
         // ##### Set-up Input Areas
         // Name
@@ -202,12 +203,14 @@ public class CreateEventActivity extends ActionBarActivity {
             if (address != null && address.size() > 0) {
                 Log.v("GeoCoder", "GeoCoder found at least 1 address associated with the event info.");
                 Address mAddr = address.get(0);
-                Log.v("GeoCoder", "(Lat, Long): " + mAddr.getLatitude() + " , " + mAddr.getLongitude());
                 fRefAddr1.child("readable").setValue(theEventAddress);
+
                 geoLat = mAddr.getLatitude();
                 geoLong = mAddr.getLongitude();
                 fRefAddr1.child("latitude").setValue(geoLat);
                 fRefAddr1.child("longitude").setValue(geoLong);
+
+                Log.v("GeoCoder", "(Lat, Long): " + geoLat + " , " + geoLong);
 
             } else {
                 Log.v("GeoCoder", "GeoCoder found 0 address associated with the event info.");
@@ -217,29 +220,25 @@ public class CreateEventActivity extends ActionBarActivity {
         }catch (Exception ex) {
             Log.v("CreateEventActivity", "Error: " + ex.toString());
         }
-        // Attendance
+
+        fRefNewEvent.child("venue").setValue(mEventVenue.getText().toString());
+        fRefNewEvent.child("city").setValue(mEventCity.getText().toString());
+        fRefNewEvent.child("zip").setValue(mEventZip.getText().toString());
         fRefNewEvent.child("currentAttendance").setValue(0); //No people are attending at creation
-        // Date and time
         fRefNewEvent.child("date").setValue(mEventDate.getCalendarView().getDate());
+        fRefNewEvent.child("cost").setValue(mEventCost.getText().toString());
+        fRefNewEvent.child("category").setValue(mCategoryOptions.getSelectedItem().toString());
+        fRefNewEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
+        fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
+        fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
         if (mEventTime.getCurrentMinute() < 10){
             fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + "0" + mEventTime.getCurrentMinute().toString());
         }
         else {
             fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + mEventTime.getCurrentMinute().toString());
         }
-        // Cost
-        fRefNewEvent.child("cost").setValue(mEventCost.getText().toString());
-        // Category
-        fRefNewEvent.child("category").setValue(mCategoryOptions.getSelectedItem().toString());
-        // Max Attendance
-        fRefNewEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
-        // Description
-        fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
-        // Host
-        fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
 
         // Submit to GeoFire
-        geoFire = new GeoFire(fRefNewEvent.child("GeoFire"));
         geoFire.setLocation(eventId, new GeoLocation(geoLat, geoLong));
     }
 
