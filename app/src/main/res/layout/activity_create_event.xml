@@ -25,6 +25,7 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
         android:paddingBottom="@dimen/activity_vertical_margin"
+        android:layout_marginTop="?android:attr/actionBarSize"
         tools:context="com.osu.kusold.roar.CreateEventActivity"
         android:weightSum="1">
 
@@ -174,7 +175,7 @@
                     android:inputType="textMultiLine"
                     android:ems="10"
                     android:id="@+id/etEventDescription"
-                    android:text="Description of your event goes here" />
+                    android:hint="Description of your event" />
                     android:hint="@string/description_hint" />
                 
                 <Button android:id="@+id/create_event_submit" style="?android:textAppearanceSmall"

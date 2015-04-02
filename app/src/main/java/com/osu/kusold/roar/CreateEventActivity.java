@@ -218,7 +218,9 @@ public class CreateEventActivity extends ActionBarActivity {
             Log.v("CreateEventActivity", "Error: " + ex.toString());
         }
         // Attendance
-        fRefNewEvent.child("currentAttendance").setValue(0); //No people are attending at creation
+        fRefNewEvent.child("attendance").child("currentAttendance").setValue(0); //No people are attending at creation
+        fRefNewEvent.child("attendance").child("pending"); // UID of requested users
+        fRefNewEvent.child("attendance").child("accepted"); // UID of users approved by host
         // Date and time
         fRefNewEvent.child("date").setValue(mEventDate.getCalendarView().getDate());
         if (mEventTime.getCurrentMinute() < 10){
@@ -227,6 +229,8 @@ public class CreateEventActivity extends ActionBarActivity {
         else {
             fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + mEventTime.getCurrentMinute().toString());
         }
+        // venue
+        fRefNewEvent.child("venue").setValue(mEventVenue.getText().toString());
         // Cost
         fRefNewEvent.child("cost").setValue(mEventCost.getText().toString());
         // Category
