@@ -191,7 +191,7 @@ public class CreateEventActivity extends ActionBarActivity {
         // ##### store the event's information #####
         // Name
         fRefEvent.child("name").setValue(mNameView.getText().toString());
-        
+
         //Address
         fRefEvent.child("venue").setValue(mEventVenue.getText().toString());
         fRefEvent.child("address1").setValue(mEventAddress1.getText().toString());
@@ -209,11 +209,13 @@ public class CreateEventActivity extends ActionBarActivity {
         // Category
         fRefEvent.child("category").setValue(mCategoryOptions.getSelectedItem().toString());
 
-        // Max Attendance
+        // Attendance
         fRefEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
+        fRefEvent.child("currentAttendance").setValue(0); //No people are attending at creation
 
         // Description
         fRefEvent.child("description").setValue(mEventDescription.getText().toString());
+
 
         SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE).edit();
         editor.putBoolean(fRef.getAuth().getUid() + R.string.is_profile_info_complete, true);
