@@ -110,12 +110,12 @@
                 <DatePicker
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/datePicker" />
+                    android:id="@+id/dpDate" />
 
                 <TimePicker
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/timePicker" />
+                    android:id="@+id/tpTime" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -129,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal"
                     android:ems="10"
-                    android:id="@+id/editText" />
+                    android:id="@+id/etCost" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -157,7 +157,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:ems="10"
-                    android:id="@+id/editText2"
+                    android:id="@+id/etMaxAttendance"
                     android:layout_gravity="center_horizontal" />
 
                 <TextView
@@ -174,6 +174,11 @@
                     android:ems="10"
                     android:id="@+id/etEventDescription"
                     android:text="Description of your event goes here" />
+
+                <Button android:id="@+id/create_event_submit" style="?android:textAppearanceSmall"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" android:text="@string/action_create_profile_submit"
+                    android:textStyle="bold" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
