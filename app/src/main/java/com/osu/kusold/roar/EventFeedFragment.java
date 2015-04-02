@@ -1,8 +1,12 @@
 package com.osu.kusold.roar;
 
 import android.app.Activity;
-import android.os.Bundle;
 import android.app.Fragment;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +16,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-
+import com.firebase.client.Firebase;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.osu.kusold.roar.dummy.DummyContent;
 
 /**
@@ -26,16 +34,11 @@ import com.osu.kusold.roar.dummy.DummyContent;
  */
 public class EventFeedFragment extends Fragment implements AbsListView.OnItemClickListener {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
+    public Firebase fRef, fRefEvents;
+    private GeoFire geoFire;
     private OnFragmentInteractionListener mListener;
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    GeoQuery geoQuery;
 
     /**
      * The fragment's ListView/GridView.
@@ -46,17 +49,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
-
-    // TODO: Rename and change types of parameters
-    public static EventFeedFragment newInstance(String param1, String param2) {
-        EventFeedFragment fragment = new EventFeedFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private ArrayAdapter mAdapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -68,11 +61,11 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        setRetainInstance(true);
+        Firebase.setAndroidContext(getActivity());
+        fRef = new Firebase(getString(R.string.firebase_ref));
+        fRefEvents = fRef.child("events");
+        geoFire = new GeoFire(fRef.child("GeoFire"));
 
         // TODO: Change Adapter to display your content
         mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
@@ -84,6 +77,20 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_eventfeed, container, false);
 
+        /*
+        *   A swipe to refresh layout wraps around the list view to give refresh animation
+        *   and provides a callback method for onRefresh so we know when to pull from Firebase.
+         */
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.event_feed_swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Get 20 event snapshot from firebase
+                mAdapter.clear();
+                refreshEventFeed();
+            }
+        });
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.yellow, R.color.green, R.color.orange);
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
@@ -93,6 +100,11 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
 
         return view;
     }
+
+    public void refreshEventFeed() {
+        new EventFetchTask(getActivity(), this).execute();
+    }
+
 
     @Override
     public void onAttach(Activity activity) {
@@ -147,6 +159,72 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(String id);
+    }
+
+    public void addEventToAdapter(EventPost event) {
+        // TODO: change adapter to hold EventPost instead of strings
+        mAdapter.add(event.eventName);
+    }
+
+    /*
+    *   Used by the listener to stop querying GeoFire after limited results.
+     */
+    public void removeRefreshGeoQueryListener(GeoQueryEventListener listener) {
+        geoQuery.removeGeoQueryEventListener(listener);
+        mListView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    /**
+     * Represents an asynchronous event fetch task used to retrieve events from
+     * firebase.
+     */
+    public class EventFetchTask extends AsyncTask<Void, Void, Boolean> {
+
+        private Context mContext;
+        EventFeedFragment mEventFeedFragment;
+
+        EventFetchTask(Context context, EventFeedFragment fragment) {
+            mContext = context.getApplicationContext();
+            mEventFeedFragment = fragment;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            Log.v("EventFetchTask", "Beginning EventFetch background process.");
+            /*LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);*/
+            double latitude, longitude;
+
+                // GEOFIRE TEST VARS (S.E.L.)
+                latitude = 40.0016740;
+                longitude = -83.0134160;
+            /*
+            else {
+                longitude = location.getLongitude();
+                latitude = location.getLatitude();
+            }*/
+            Log.v("CurrentLocation", "GPS location on refresh (lag, long): " + latitude + " " + longitude);
+
+            // 20 km radius search for events
+            geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude, longitude), 20.0);
+            // limit query to at most 20 results
+            LimitedGeoQueryEventListener limitedQuery = new LimitedGeoQueryEventListener(mEventFeedFragment, 20);
+
+            geoQuery.addGeoQueryEventListener(limitedQuery);
+            Log.v("EventFetchTask", "Exit doBackgroundProcess");
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            Log.v("EventFetchTask", "Exit onPostExecute");
+        }
+
+        @Override
+        protected void onCancelled() {
+        }
     }
 
 }

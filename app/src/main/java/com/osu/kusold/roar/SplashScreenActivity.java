@@ -36,7 +36,7 @@ public class SplashScreenActivity extends Activity {
                 // This method will be executed once the timer is over
 
                 Intent i;
-                SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE);
+                SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE);
                 boolean isNewUser = settings.getBoolean(getString(R.string.is_new_user), true);
 
                 /*
@@ -53,17 +53,8 @@ public class SplashScreenActivity extends Activity {
                 else {
                     // If logged in
                     if(fRef.getAuth() != null) {
-                        if(settings.getBoolean(fRef.getAuth().getUid() + getString(R.string.is_profile_info_complete), false)) {
-                            // user has account, is logged in, and profile is complete
                             i = new Intent(SplashScreenActivity.this, EventFeedActivity.class);
                             Log.v("InitialActivity", "User: " + fRef.getAuth().getUid() + " is logged in.");
-
-                        } else {
-                            // User has account, is logged in, but profile is not complete
-                            i = new Intent(SplashScreenActivity.this, CreateProfileActivity.class);
-                            Log.v("InitialActivity", "User: " + fRef.getAuth().getUid() + " is creating profile.");
-                        }
-
                     } else {
                         // User has account, but not logged in
                         i = new Intent(SplashScreenActivity.this, LoginActivity.class);
@@ -77,5 +68,4 @@ public class SplashScreenActivity extends Activity {
         }, SPLASH_TIME_OUT);
 
     }
-
 }

@@ -1,14 +1,18 @@
 package com.osu.kusold.roar;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,10 +24,8 @@ import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 
-import java.util.Map;
 
-
-public class EventFeedActivity extends ActionBarActivity implements EventFeedFragment.OnFragmentInteractionListener{
+public class EventFeedActivity extends ActionBarActivity implements EventFeedFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener {
 
     private Firebase fRef, fRefUser, fRefProfile;
     private String[] mDrawerTitles;
@@ -33,6 +35,7 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
     private android.support.v7.widget.Toolbar mToolbar;
     String mUid;
     double longitude, latitude;
+    GeoFire geoFire;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +49,7 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
         mUid = fRef.getAuth().getUid();
         fRefUser = fRef.child("users").child(mUid);
         fRefProfile = fRef.child("profile");
-        GeoFire geoFire = new GeoFire(fRefUser);
+        geoFire = new GeoFire(fRefUser);
 
         // get current long/lat of user
         LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
@@ -99,6 +102,13 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);
         }
+
+        // Default show event feed
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        EventFeedFragment fragment = new EventFeedFragment();
+        fragmentTransaction.add(R.id.fragment_container, fragment);
+        fragmentTransaction.commit();
     }
 
 
@@ -119,8 +129,7 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
             return true;
         }
         else if (id == R.id.action_create_event){
-            Intent intent = new Intent(EventFeedActivity.this, CreateEventActivity.class);
-            startActivity(intent);
+            createEvent();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -139,6 +148,7 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id) {
+            Log.v("EventFeedActivity", "Item clicked: " + position + " and id: " + id);
             selectItem(position, id);
         }
     }
@@ -146,9 +156,24 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
     /** Swaps fragments in the main content view */
     private void selectItem(int position, long id) {
         // Highlight the selected item, update the title, and close the drawer
-        if(position == 3) {
+        if(position == 0) {             // Event Feed
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            EventFeedFragment fragment = new EventFeedFragment();
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
+            fragmentTransaction.commit();
+        } else if (position == 1) {     // Event Manager
+
+        } else if (position == 2) {     // Profile
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            ProfileFragment fragment = new ProfileFragment();
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
+            fragmentTransaction.commit();
+        } else if (position == 3) {     // Logout
             logout();
-        } else {
+        }
+        else {
             setTitle(mDrawerTitles[position]);
         }
         mDrawerList.setItemChecked(position, true);
@@ -159,7 +184,17 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
     *   Fragment-to-activity communication require containter activity to
     *   implement an interface with this method.
      */
+    @Override
     public void onFragmentInteraction(String id) {
+
+
+    }
+    /*
+   *   Fragment-to-activity communication require containter activity to
+   *   implement an interface with this method.
+    */
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
     }
 }
