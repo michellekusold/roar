@@ -9,4 +9,13 @@
     -->
     <item name="fragment_eventfeed" type="layout">@layout/fragment_eventfeed_list</item>
 
+    <!--
+    Layout alias to replace the single-pane version of the layout with a
+    two-pane version on Large screens.
+
+    For more on layout aliases, see:
+    http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
+    -->
+    <item name="fragment_eventmanager" type="layout">@layout/fragment_eventmanager_list</item>
+
 </resources>
