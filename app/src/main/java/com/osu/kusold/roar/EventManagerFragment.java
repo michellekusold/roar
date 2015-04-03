@@ -132,6 +132,7 @@ public class EventManagerFragment extends Fragment implements AbsListView.OnItem
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         EventPost post = (EventPost) mAdapter.getItem(position);
         String eventUid = post.eventUid;
+        Log.v("EventManagerTask", "EventManagerFragment creating ViewEventActivity with eventId: " + eventUid);
         Intent eventIntent = new Intent(getActivity(), ViewEventActivity.class);
         eventIntent.putExtra(EVENT_UID , eventUid);
         startActivity(eventIntent);
@@ -195,7 +196,7 @@ public class EventManagerFragment extends Fragment implements AbsListView.OnItem
                     Log.v("EventManagerTask", dataSnapshot.toString());
                     Log.v("EventManagerTask", dataSnapshot.getChildren().toString());
 
-                        String eventId = dataSnapshot.getKey();
+                        final String eventId = dataSnapshot.getKey();
                         Log.v("EventManagerTask", "Event " + eventId + " found for current user.");
 
                         fRef.child("events").child(eventId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -204,6 +205,7 @@ public class EventManagerFragment extends Fragment implements AbsListView.OnItem
                                 Map<String, Object> eventData = (Map<String, Object>) dataSnapshot.getValue();
                                 if(eventData != null) {
                                     EventPost post = new EventPost(eventData);
+                                    post.eventUid = eventId;
                                     addEventToAdapter(post);
                                     Log.v("EventManagerTask", "Event: " + eventData.get("name").toString() + " added to adapter.");
                                 }

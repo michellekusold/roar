@@ -1,29 +1,17 @@
 package com.osu.kusold.roar;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.DatePicker;
-import android.widget.TimePicker;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
 /* Class to view the user's Profile */
@@ -47,7 +35,7 @@ public class ViewEventActivity extends ActionBarActivity {
         fRef = new Firebase(getString(R.string.firebase_ref));
 
         Intent viewEventIntent = getIntent();
-        String eventUID = viewEventIntent.getStringExtra(EventFeedFragment.EVENT_UID);
+        String eventUID = viewEventIntent.getStringExtra(EventManagerFragment.EVENT_UID);
         System.out.println("VIEW EVENT ID: " + eventUID);
         fRefEvent = fRef.child("events").child(eventUID);
 
