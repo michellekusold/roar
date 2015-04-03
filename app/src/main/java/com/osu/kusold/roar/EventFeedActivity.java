@@ -88,19 +88,19 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                if(getSupportActionBar() != null) {
-                    getSupportActionBar().setTitle("Roar");
-                }
             }
         };
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
+
         if(getSupportActionBar() != null) {
             ActionBar actionBar = getSupportActionBar();
             actionBar.setLogo(R.drawable.ic_launcher);
             actionBar.setDisplayUseLogoEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);
+
         }
 
         // Default show event feed
