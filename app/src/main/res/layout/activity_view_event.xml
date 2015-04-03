@@ -33,7 +33,6 @@
             android:layout_height="match_parent"
             android:id="@+id/scrollView"
             android:fillViewport="true" >
-
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
@@ -183,7 +182,7 @@
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" android:text="Edit Event"
                     android:textStyle="bold" />
-            </LinearLayout>
+           </LinearLayout>
         </ScrollView>
     </LinearLayout>
 

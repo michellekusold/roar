@@ -176,7 +176,30 @@
                     android:ems="10"
                     android:id="@+id/etEventDescription"
                     android:hint="Description of your event" />
-                    android:hint="@string/description_hint" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Contact Information"
+                    android:id="@+id/tvContactInfo" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:ems="10"
+                    android:id="@+id/etPhonNumber"
+                    android:hint="Phone Number" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"
+                    android:ems="10"
+                    android:id="@+id/etEmailAddress"
+                    android:hint="Email Address" />
+
 
                 <Button android:id="@+id/create_event_submit" style="?android:textAppearanceSmall"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
