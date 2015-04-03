@@ -3,6 +3,7 @@ package com.osu.kusold.roar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -42,6 +43,8 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     private OnFragmentInteractionListener mListener;
     SwipeRefreshLayout mSwipeRefreshLayout;
     GeoQuery geoQuery;
+
+    public final static String EVENT_UID = "com.osu.kusold.roar.EVENT_UID_MESSAGE";
 
     /**
      * The fragment's ListView/GridView.
@@ -134,6 +137,12 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
             mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+
+            EventPost post = (EventPost) mAdapter.getItem(position);
+            String eventUid = post.eventUid;
+            Intent eventIntent = new Intent(getActivity(), ViewEventActivity.class);
+            eventIntent.putExtra(EVENT_UID , eventUid);
+            startActivity(eventIntent);
         }
     }
 

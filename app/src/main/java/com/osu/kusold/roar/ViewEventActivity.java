@@ -30,47 +30,26 @@ import java.util.Map;
 public class ViewEventActivity extends ActionBarActivity {
 
     private Firebase fRef, fRefEvent;
-    private TextView mEventName;
-    private TextView mEventVenue, mEventAddress1, mEventAddress2, mEventCity, mEventZip;
+    private TextView mEventName, mEventVenue, mEventAddress1, mEventAddress2, mEventCity, mEventZip;
     private TextView mEventDate,mEventTime;
     private TextView mEventCost, mEventMaxAttendance, mEventCurrentAttendance, mEventDescription, mEventCategory;
+    private Intent viewEventIntent;
+    String eventName, eventCity, eventVenue, eventZip, eventAddress1, eventDate, eventTime, eventCost,
+        eventCategory, eventMaxAttendance, eventCurrentAttendance, eventDescription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_profile);
-
-        // Name of event that is passed in through calling this activity
-        Bundle bundle = this.getIntent().getExtras();
-        final String eventName = bundle.getString("param1");
+        setContentView(R.layout.activity_view_event);
 
         // Firebase root setup
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
-        fRefEvent = fRef.child("events").child(eventName);
 
-        // Firebase Data
-
-        // UI objects
-        // Name
-        mEventName = (TextView) findViewById(R.id.tvEventName);
-        // Address
-        mEventVenue = (TextView) findViewById(R.id.tvVenue);
-        mEventAddress1 = (TextView) findViewById(R.id.tvAddressLine1);
-        mEventCity = (TextView) findViewById(R.id.tvCity);
-        mEventZip = (TextView) findViewById(R.id.tvZip);
-        // Date and Time
-        mEventDate = (TextView) findViewById(R.id.dpDate);
-        mEventTime = (TextView) findViewById(R.id.tvTime);
-        // Cost
-        mEventCost = (TextView) findViewById(R.id.tvCost);
-        // Category
-        mEventCategory = (TextView) findViewById(R.id.categoryOptions);
-        // Attendance
-        mEventMaxAttendance = (TextView) findViewById(R.id.tvMaxAttendance);
-        mEventCurrentAttendance = (TextView) findViewById(R.id.tvCurrentAttendance);
-        // Description
-        mEventDescription = (TextView) findViewById(R.id.tvEventDescription);
+        Intent viewEventIntent = getIntent();
+        String eventUID = viewEventIntent.getStringExtra(EventFeedFragment.EVENT_UID);
+        System.out.println("VIEW EVENT ID: " + eventUID);
+        fRefEvent = fRef.child("events").child(eventUID);
 
         fRefEvent.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -78,20 +57,50 @@ public class ViewEventActivity extends ActionBarActivity {
 
                 // Retrieve from firebase
                 Map<String, Object> eventData = (Map<String, Object>) snapshot.getValue();
-                String eventName = eventData.get("name").toString();
-                String eventAddress1 = eventData.get("eventAddress1").toString();
-                String eventCity = eventData.get("city").toString();
-                String eventVenue = eventData.get("venue").toString();
-                String eventZip = eventData.get("zip").toString();
-                String eventDate = eventData.get("date").toString();
-                String eventTime = eventData.get("time").toString();
-                String eventCost = eventData.get("cost").toString();
-                String eventCategory = eventData.get("category").toString();
-                String eventMaxAttendance = eventData.get("maxAttendance").toString();
-                String eventCurrentAttendance = eventData.get("currentAttendance").toString();
-                String eventDescription = eventData.get("description").toString();
+                eventName = eventData.get("name").toString();
+                System.out.println("VIEW EVENT: name: " + eventName);
+                DataSnapshot addrSnapshot = snapshot.child("address1");
+                Map<String,Object> addrData = (Map<String,Object>) addrSnapshot.getValue();
+                eventAddress1 = addrData.get("readable").toString();
 
+                System.out.println("VIEW EVENT: addr" + eventAddress1);
+                eventCity = eventData.get("city").toString();
+                eventVenue = eventData.get("venue").toString();
+                eventZip = eventData.get("zip").toString();
+                eventDate = eventData.get("date").toString();
+                eventTime = eventData.get("time").toString();
+                eventCost = eventData.get("cost").toString();
+                eventCategory = eventData.get("category").toString();
+                eventMaxAttendance = eventData.get("maxAttendance").toString();
+                eventCurrentAttendance = "0";
+                if(eventData.containsKey("currentAttendance")) {
+                    eventCurrentAttendance = eventData.get("currentAttendance").toString();
+                }
+                eventDescription = eventData.get("description").toString();
+
+                // Get UI references
                 // Display on screen
+                mEventName = (TextView) findViewById(R.id.tvEventName);
+                // Address
+                mEventVenue = (TextView) findViewById(R.id.tvVenue);
+                mEventAddress1 = (TextView) findViewById(R.id.tvAddressLine1);
+                mEventCity = (TextView) findViewById(R.id.tvCity);
+                mEventZip = (TextView) findViewById(R.id.tvZip);
+                // Date and Time
+                mEventDate = (TextView) findViewById(R.id.tvDate);
+                mEventTime = (TextView) findViewById(R.id.tvTime);
+                // Cost
+                mEventCost = (TextView) findViewById(R.id.tvCost);
+                // Category
+                mEventCategory = (TextView) findViewById(R.id.tvCategory);
+                // Attendance
+                mEventMaxAttendance = (TextView) findViewById(R.id.tvMaxAttendance);
+                mEventCurrentAttendance = (TextView) findViewById(R.id.tvCurrentAttendance);
+                // Description
+                mEventDescription = (TextView) findViewById(R.id.tvEventDescription);
+
+
+                // Name
                 mEventName.setText(eventName);
                 mEventAddress1.setText(eventAddress1);
                 mEventCity.setText(eventCity);
@@ -111,13 +120,13 @@ public class ViewEventActivity extends ActionBarActivity {
             }
         });
 
-        Button editProfileButton = (Button) findViewById(R.id.edit_event);
+        /*Button editProfileButton = (Button) findViewById(R.id.edit_event);
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switchToEditEvent();
             }
-        });
+        });*/
     }
 
 

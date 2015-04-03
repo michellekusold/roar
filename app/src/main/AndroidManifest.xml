@@ -33,7 +33,7 @@
         </activity>
         <activity
             android:name=".EventFeedActivity"
-            android:label="@string/title_activity_event_feed" >
+            android:label="@string/title_activity_event_feed">
         </activity>
         <activity
             android:name=".CreateProfileActivity"
@@ -50,6 +50,10 @@
         <activity
             android:name=".CreateEventActivity"
             android:label="@string/title_activity_create_event" >
+        </activity>
+        <activity
+            android:name=".ViewEventActivity"
+            android:label="@string/title_activity_view_event" >
         </activity>
 
         <meta-data
