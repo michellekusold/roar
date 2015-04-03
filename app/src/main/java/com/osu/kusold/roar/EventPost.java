@@ -19,6 +19,7 @@ public class EventPost {
     public String description;
     public String hostUid;
     public String image;
+    public String eventUid;
     Map<String, Object> mEventData;
 
     public EventPost(Map<String, Object> eventData) {
