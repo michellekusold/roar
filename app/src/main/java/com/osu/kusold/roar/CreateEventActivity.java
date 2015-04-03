@@ -22,11 +22,15 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 
 import java.util.List;
+import java.util.Map;
 
 public class CreateEventActivity extends ActionBarActivity {
     // Firebase Variables
@@ -58,6 +62,7 @@ public class CreateEventActivity extends ActionBarActivity {
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
         fRefEvents = fRef.child("events");
+        geoFire = new GeoFire(fRef.child("GeoFire"));
 
         // ##### Set-up Input Areas
         // Name
@@ -237,9 +242,20 @@ public class CreateEventActivity extends ActionBarActivity {
         else {
             fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + mEventTime.getCurrentMinute().toString());
         }
-        
+        fRefUser.child("profile").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String, Object> profileData = (Map<String, Object>) dataSnapshot.getValue();
+                fRefNewEvent.child("image").setValue(profileData.get("photo").toString());
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
         // Submit to GeoFire
-        geoFire = new GeoFire(fRefNewEvent.child("GeoFire"));
         geoFire.setLocation(eventId, new GeoLocation(geoLat, geoLong));
     }
 

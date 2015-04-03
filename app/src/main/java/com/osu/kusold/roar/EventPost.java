@@ -18,6 +18,8 @@ public class EventPost {
     public String maxAttendance;
     public String description;
     public String hostUid;
+    public String image;
+    public String eventUid;
     Map<String, Object> mEventData;
 
     public EventPost(Map<String, Object> eventData) {
@@ -26,7 +28,9 @@ public class EventPost {
         //venue = eventData.get("venue").toString();
         city = eventData.get("city").toString();
         zip = eventData.get("zip").toString();
-
+        if(eventData.containsKey("image")) {
+            image = eventData.get("image").toString();
+        }
         // Date and time
         date = eventData.get("date").toString();
 

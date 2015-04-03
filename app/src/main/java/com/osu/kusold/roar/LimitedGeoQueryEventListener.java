@@ -25,12 +25,14 @@ public class LimitedGeoQueryEventListener implements GeoQueryEventListener {
 
     @Override
     public void onKeyEntered(String key, GeoLocation location) {
+        final String uid = key;
         mEventFeedFragment.fRefEvents.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Map<String, Object> eventData = (Map<String, Object>) dataSnapshot.getValue();
                 if(eventData != null) {
                     EventPost post = new EventPost(eventData);
+                    post.eventUid = uid;
                     mEventFeedFragment.addEventToAdapter(post);
                     numOfEventsLoaded++;
                     Log.v("EventFetchTask", "Event: " + eventData.get("name").toString() + " added to EventNameList.");

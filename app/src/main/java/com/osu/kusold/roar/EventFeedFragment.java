@@ -24,6 +24,8 @@ import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.osu.kusold.roar.dummy.DummyContent;
 
+import java.util.ArrayList;
+
 /**
  * A fragment representing a list of Items.
  * <p/>
@@ -68,9 +70,9 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         fRefEvents = fRef.child("events");
         geoFire = new GeoFire(fRef.child("GeoFire"));
 
-        // TODO: Change Adapter to display your content
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+        /*mAdapter = new ArrayAdapter<EventPost>(getActivity(),
+                R.layout.event_post_layout, R.id.event_post_hidden, new ArrayList<EventPost>());*/
+        mAdapter = new EventPostAdapter(getActivity(), new ArrayList<EventPost>());
     }
 
     @Override
@@ -164,8 +166,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     }
 
     public void addEventToAdapter(EventPost event) {
-        // TODO: change adapter to hold EventPost instead of strings
-        mAdapter.add(event.eventName);
+        mAdapter.add(event);
     }
 
     /*
