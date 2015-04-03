@@ -3,6 +3,7 @@ package com.osu.kusold.roar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -23,7 +24,6 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.firebase.geofire.GeoQueryEventListener;
-import com.osu.kusold.roar.dummy.DummyContent;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -42,6 +42,7 @@ public class EventManagerFragment extends Fragment implements AbsListView.OnItem
     public Firebase fRef, fRefUser, fRefUserEvents;
     private OnFragmentInteractionListener mListener;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    public final static String EVENT_UID = "com.osu.kusold.roar.EVENT_UID_MESSAGE";
 
     /**
      * The fragment's ListView/GridView.
@@ -69,7 +70,7 @@ public class EventManagerFragment extends Fragment implements AbsListView.OnItem
 
         Firebase.setAndroidContext(getActivity());
         fRef = new Firebase(getString(R.string.firebase_ref));
-        fRefUser = fRef.child(fRef.getAuth().getUid());
+        fRefUser = fRef.child("users").child(fRef.getAuth().getUid());
         fRefUserEvents = fRefUser.child("events");
         mAdapter = new EventPostAdapter(getActivity(), new ArrayList<EventPost>());
     }
@@ -129,11 +130,11 @@ public class EventManagerFragment extends Fragment implements AbsListView.OnItem
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (null != mListener) {
-            // Notify the active callbacks interface (the activity, if the
-            // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
-        }
+        EventPost post = (EventPost) mAdapter.getItem(position);
+        String eventUid = post.eventUid;
+        Intent eventIntent = new Intent(getActivity(), ViewEventActivity.class);
+        eventIntent.putExtra(EVENT_UID , eventUid);
+        startActivity(eventIntent);
     }
 
     /**
@@ -192,16 +193,12 @@ public class EventManagerFragment extends Fragment implements AbsListView.OnItem
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Log.v("EventManagerTask", dataSnapshot.toString());
-                    Map<String, Object> profileData = (Map<String, Object>) dataSnapshot.getValue();
-                    if(profileData.get("events") != null) {
-                        Log.v("EventManagerTask", profileData.get("events").toString());
-                    }
-                    for(DataSnapshot child: dataSnapshot.getChildren()) {
+                    Log.v("EventManagerTask", dataSnapshot.getChildren().toString());
 
-                        String eventId = child.getKey();
+                        String eventId = dataSnapshot.getKey();
                         Log.v("EventManagerTask", "Event " + eventId + " found for current user.");
-                        fRef.child("events").child(eventId).addListenerForSingleValueEvent(new ValueEventListener() {
 
+                        fRef.child("events").child(eventId).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 Map<String, Object> eventData = (Map<String, Object>) dataSnapshot.getValue();
@@ -217,7 +214,6 @@ public class EventManagerFragment extends Fragment implements AbsListView.OnItem
                                 Log.v("EventManager", "EventManager.OnCreate.OnDataChange Firebase error: " + firebaseError.toString());
                             }
                         });
-                    }
                 }
 
                 @Override
@@ -241,7 +237,7 @@ public class EventManagerFragment extends Fragment implements AbsListView.OnItem
                 }
             });
 
-            SystemClock.sleep(6000);
+            SystemClock.sleep(8000);
             Log.v("EventFetchTask", "Exit doBackgroundProcess");
             return true;
         }

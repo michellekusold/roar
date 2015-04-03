@@ -23,7 +23,6 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
-import com.osu.kusold.roar.dummy.DummyContent;
 
 import java.util.ArrayList;
 
@@ -133,17 +132,11 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (null != mListener) {
-            // Notify the active callbacks interface (the activity, if the
-            // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
-
-            EventPost post = (EventPost) mAdapter.getItem(position);
-            String eventUid = post.eventUid;
-            Intent eventIntent = new Intent(getActivity(), ViewEventActivity.class);
-            eventIntent.putExtra(EVENT_UID , eventUid);
-            startActivity(eventIntent);
-        }
+        EventPost post = (EventPost) mAdapter.getItem(position);
+        String eventUid = post.eventUid;
+        Intent eventIntent = new Intent(getActivity(), ViewEventActivity.class);
+        eventIntent.putExtra(EVENT_UID , eventUid);
+        startActivity(eventIntent);
     }
 
     /**
@@ -225,7 +218,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
             // limit query to at most 20 results
             mLimitedQuery = new LimitedGeoQueryEventListener(mEventFeedFragment, 20);
             geoQuery.addGeoQueryEventListener(mLimitedQuery);
-            SystemClock.sleep(6000);
+            SystemClock.sleep(8000);
             Log.v("EventFetchTask", "Exit doBackgroundProcess");
             return true;
         }

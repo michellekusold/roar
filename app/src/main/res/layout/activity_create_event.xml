@@ -87,7 +87,6 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
                     android:ems="10"
                     android:id="@+id/etCity"
                     android:layout_gravity="right"
@@ -96,7 +95,6 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
                     android:ems="10"
                     android:id="@+id/etZip"
                     android:hint="@string/zip" />
@@ -195,7 +193,6 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
                     android:ems="10"
                     android:id="@+id/etEmailAddress"
                     android:hint="Email Address" />
