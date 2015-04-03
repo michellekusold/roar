@@ -25,7 +25,7 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 
 
-public class EventFeedActivity extends ActionBarActivity implements EventFeedFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener {
+public class EventFeedActivity extends ActionBarActivity implements EventFeedFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener, EventManagerFragment.OnFragmentInteractionListener {
 
     private Firebase fRef, fRefUser, fRefProfile;
     private String[] mDrawerTitles;
@@ -163,7 +163,11 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
         } else if (position == 1) {     // Event Manager
-
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            EventManagerFragment fragment = new EventManagerFragment();
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
+            fragmentTransaction.commit();
         } else if (position == 2) {     // Profile
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

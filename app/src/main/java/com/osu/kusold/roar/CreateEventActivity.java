@@ -193,7 +193,7 @@ public class CreateEventActivity extends ActionBarActivity {
         mUid = fRef.getAuth().getUid();
         fRefUser = fRef.child("users").child(mUid);
 
-        fRefUser.child("events").child("created").setValue(eventId);
+        fRefUser.child("events").child(eventId).setValue("created");
         fRefNewEvent.child("name").setValue(mEventName.getText().toString());
 
         // Geocoding
