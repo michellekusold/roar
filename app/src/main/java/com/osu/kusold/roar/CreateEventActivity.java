@@ -50,6 +50,7 @@ public class CreateEventActivity extends ActionBarActivity {
     private DatePicker mEventDate;
     private TimePicker mEventTime;
     private EditText mEventCost, mEventMaxAttendance, mEventDescription;
+    private EditText mPhoneNumber, mEmailAddress;
     private Spinner mCategoryOptions;
     private double geoLong, geoLat;
 
@@ -85,6 +86,9 @@ public class CreateEventActivity extends ActionBarActivity {
         mCategoryOptions.setAdapter(adapter);
         // Max Attendance
         mEventMaxAttendance = (EditText) findViewById(R.id.etMaxAttendance);
+        // Contact Info
+        mPhoneNumber = (EditText) findViewById(R.id.etPhonNumber);
+        mEmailAddress = (EditText) findViewById(R.id.etEmailAddress);
         // Description
         mEventDescription = (EditText) findViewById(R.id.etEventDescription);
 
@@ -236,6 +240,8 @@ public class CreateEventActivity extends ActionBarActivity {
         fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
         fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
         fRefNewEvent.child("date").setValue(mEventDate.getCalendarView().getDate());
+        fRefNewEvent.child("phone").setValue(mPhoneNumber.getText().toString());
+        fRefNewEvent.child("email").setValue(mEmailAddress.getText().toString());
         if (mEventTime.getCurrentMinute() < 10){
             fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + "0" + mEventTime.getCurrentMinute().toString());
         }
