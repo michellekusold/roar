@@ -1,12 +1,10 @@
 package com.osu.kusold.roar;
 
 
-import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
-import android.location.LocationManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -28,23 +26,13 @@ import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.List;
 
 public class CreateEventActivity extends ActionBarActivity {
     // Firebase Variables
-    private Firebase fRef, fRefEvents, fRefNewEvent;
+    private Firebase fRef, fRefEvents, fRefUser, fRefNewEvent;
     private GeoFire geoFire;
+    private String mUid;
 
     // Navigational Variables
     private String[] mDrawerTitles;
@@ -70,7 +58,6 @@ public class CreateEventActivity extends ActionBarActivity {
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
         fRefEvents = fRef.child("events");
-        geoFire = new GeoFire(fRef.child("GeoFire"));
 
         // ##### Set-up Input Areas
         // Name
@@ -197,33 +184,52 @@ public class CreateEventActivity extends ActionBarActivity {
         // key for nearby events.
         fRefNewEvent = fRefEvents.push();
         String eventId = fRefNewEvent.getKey();
+        // store the event id in the user created events DB
+        mUid = fRef.getAuth().getUid();
+        fRefUser = fRef.child("users").child(mUid);
 
-        // Name
+        fRefUser.child("events").child("created").setValue(eventId);
         fRefNewEvent.child("name").setValue(mEventName.getText().toString());
 
-        // Geocode address and store it as long/lat pair
-        double longitude, latitude;
-        String geoRequest = "https://maps.googleapis.com/maps/api/geocode/json?key=" + getString(R.string.api_key);
-        // TODO: do we need checking here to make sure an address exists or is it mandatory?
-        geoRequest= geoRequest + "&address=" + geoFormat(mEventAddress1);
-        geoRequest = geoRequest + ",+" + geoFormat(mEventCity);
-        geoRequest = geoRequest + ",+" + geoFormat(mEventZip);
-        geocodeAddr(geoRequest);
-
+        // Geocoding
         Firebase fRefAddr1 = fRefNewEvent.child("address1");
-        fRefAddr1.child("readable").setValue(mEventAddress1.getText().toString());
-        fRefAddr1.child("latitude").setValue(geoLat);
-        fRefAddr1.child("longitude").setValue(geoLong);
+        try {
+            Geocoder geocoder = new Geocoder(this);
+            //String theEventAddress = mEventVenue.getText().toString() + " " + mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
+            String theEventAddress = mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
+            Log.v("GeoCoder", "Address that will be input to GeoCoder: " + theEventAddress);
+            List<Address> address = geocoder.getFromLocationName(theEventAddress, 1);
+            if (address != null && address.size() > 0) {
+                Log.v("GeoCoder", "GeoCoder found at least 1 address associated with the event info.");
+                Address mAddr = address.get(0);
+                Log.v("GeoCoder", "(Lat, Long): " + mAddr.getLatitude() + " , " + mAddr.getLongitude());
+                fRefAddr1.child("readable").setValue(theEventAddress);
+                geoLat = mAddr.getLatitude();
+                geoLong = mAddr.getLongitude();
+                fRefAddr1.child("latitude").setValue(geoLat);
+                fRefAddr1.child("longitude").setValue(geoLong);
 
+            } else {
+                Log.v("GeoCoder", "GeoCoder found 0 address associated with the event info.");
+                fRefAddr1.child("latitude").setValue(0);
+                fRefAddr1.child("longitude").setValue(0);
+            }
+        }catch (Exception ex) {
+            Log.v("CreateEventActivity", "Error: " + ex.toString());
+        }
+        // Attendance
+        fRefNewEvent.child("attendance").child("currentAttendance").setValue(0); //No people are attending at creation
+        fRefNewEvent.child("attendance").child("pending"); // UID of requested users
+        fRefNewEvent.child("attendance").child("accepted"); // UID of users approved by host
+        // Other info
         fRefNewEvent.child("venue").setValue(mEventVenue.getText().toString());
         fRefNewEvent.child("city").setValue(mEventCity.getText().toString());
         fRefNewEvent.child("zip").setValue(mEventZip.getText().toString());
-
-        // TODO: currently ignoring address2 for geocoding
-        fRefNewEvent.child("address2").setValue(mEventAddress2.getText().toString());
-        Firebase fRefAddr = fRefNewEvent.child("address2");
-
-        // Date and time
+        fRefNewEvent.child("cost").setValue(mEventCost.getText().toString());
+        fRefNewEvent.child("category").setValue(mCategoryOptions.getSelectedItem().toString());
+        fRefNewEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
+        fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
+        fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
         fRefNewEvent.child("date").setValue(mEventDate.getCalendarView().getDate());
         if (mEventTime.getCurrentMinute() < 10){
             fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + "0" + mEventTime.getCurrentMinute().toString());
@@ -231,30 +237,9 @@ public class CreateEventActivity extends ActionBarActivity {
         else {
             fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + mEventTime.getCurrentMinute().toString());
         }
-        // Cost
-        fRefNewEvent.child("cost").setValue(mEventCost.getText().toString());
-        // Category
-        fRefNewEvent.child("category").setValue(mCategoryOptions.getSelectedItem().toString());
-        // Max Attendance
-        fRefNewEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
-        // Description
-        fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
-
+        
         // Submit to GeoFire
-        // TODO: Currently we just use the GPS location, but it should be the long & lat of the event
-        /*LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        double latitude, longitude;
-        if(location == null){
-            // GEOFIRE TEST VARS (S.E.L.)
-            latitude = 40.0016740;
-            longitude = -83.0134160;
-        }
-        else {
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-        }
-        geoFire.setLocation(eventId, new GeoLocation(latitude, longitude));*/
+        geoFire = new GeoFire(fRefNewEvent.child("GeoFire"));
         geoFire.setLocation(eventId, new GeoLocation(geoLat, geoLong));
     }
 
@@ -269,58 +254,6 @@ public class CreateEventActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
-    /* Formats EditText into the correct structure for geocoding */
-    private String geoFormat(EditText geoStr){
-        return geoStr.getText().toString().replaceAll(" ", "+");
-    }
-
-    private void geocodeAddr(String geoRequest){
-        HttpGet httpGet = new HttpGet(geoRequest);
-        HttpClient client = new DefaultHttpClient();
-        HttpResponse response;
-        StringBuilder stringBuilder = new StringBuilder();
-
-        if (android.os.Build.VERSION.SDK_INT > 9)
-        {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-
-        try {
-            response = client.execute(httpGet);
-            HttpEntity entity = response.getEntity();
-            InputStream stream = entity.getContent();
-            int b;
-            while ((b = stream.read()) != -1) {
-                stringBuilder.append((char) b);
-            }
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        JSONObject jsonObject;
-        try {
-            jsonObject = new JSONObject(stringBuilder.toString());
-
-            double lng = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lng");
-
-            double lat = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lat");
-
-            Log.d("latitude", "" + lat);
-            Log.d("longitude", "" + lng);
-            geoLat = lat;
-            geoLong = lng;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
 }
 
 

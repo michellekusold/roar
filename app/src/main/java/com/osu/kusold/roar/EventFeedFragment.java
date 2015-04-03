@@ -3,10 +3,9 @@ package com.osu.kusold.roar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,19 +17,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.osu.kusold.roar.dummy.DummyContent;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A fragment representing a list of Items.
@@ -43,10 +35,11 @@ import java.util.Map;
  */
 public class EventFeedFragment extends Fragment implements AbsListView.OnItemClickListener {
 
-    private Firebase fRef, fRefEvents;
+    public Firebase fRef, fRefEvents;
     private GeoFire geoFire;
     private OnFragmentInteractionListener mListener;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    GeoQuery geoQuery;
 
     /**
      * The fragment's ListView/GridView.
@@ -69,7 +62,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setRetainInstance(true);
         Firebase.setAndroidContext(getActivity());
         fRef = new Firebase(getString(R.string.firebase_ref));
         fRefEvents = fRef.child("events");
@@ -98,6 +91,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
                 refreshEventFeed();
             }
         });
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.yellow, R.color.green, R.color.orange);
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
@@ -109,7 +103,8 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     }
 
     public void refreshEventFeed() {
-        new EventFetchTask(getActivity()).execute();
+        new EventFetchTask(getActivity(), this).execute();
+
     }
 
 
@@ -168,97 +163,67 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         public void onFragmentInteraction(String id);
     }
 
+    public void addEventToAdapter(EventPost event) {
+        // TODO: change adapter to hold EventPost instead of strings
+        mAdapter.add(event.eventName);
+    }
+
+    /*
+    *   Used by the listener to stop querying GeoFire after limited results.
+     */
+    public void removeRefreshGeoQueryListener(GeoQueryEventListener listener) {
+        mListView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
+        mSwipeRefreshLayout.setRefreshing(false);
+        geoQuery.removeGeoQueryEventListener(listener);
+    }
 
     /**
      * Represents an asynchronous event fetch task used to retrieve events from
      * firebase.
      */
-    public class EventFetchTask extends AsyncTask<Void, Void, List<String>> {
+    public class EventFetchTask extends AsyncTask<Void, Void, Boolean> {
 
-        String mEventName;
         private Context mContext;
-        List<String> eventNameList;
+        EventFeedFragment mEventFeedFragment;
+        GeoQueryEventListener mLimitedQuery;
 
-        EventFetchTask(Context context) {
+        EventFetchTask(Context context, EventFeedFragment fragment) {
             mContext = context.getApplicationContext();
+            mEventFeedFragment = fragment;
         }
 
         @Override
-        protected List<String> doInBackground(Void... params) {
+        protected Boolean doInBackground(Void... params) {
             Log.v("EventFetchTask", "Beginning EventFetch background process.");
-            eventNameList = new ArrayList<String>();
-            LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            /*LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);*/
             double latitude, longitude;
-            if(location == null){
+
                 // GEOFIRE TEST VARS (S.E.L.)
                 latitude = 40.0016740;
                 longitude = -83.0134160;
-            }
+            /*
             else {
                 longitude = location.getLongitude();
                 latitude = location.getLatitude();
-            }
-            final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude, longitude), 10.0);
-            geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-                int eventsRetreivedCount = 0;
-                String eventName = "test event name";
-                @Override
-                public void onKeyEntered(String key, GeoLocation location) {
-                    fRef.child("events").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            Map<String, Object> eventData = (Map<String, Object>) dataSnapshot.getValue();
-                            if(eventData != null) {
-                                eventName = eventData.get("name").toString();
-                                mAdapter.add(eventName);
-                                Log.v("EventFetchTask", "Event: " + eventName + " added to EventNameList.");
-                            }
-                        }
+            }*/
+            Log.v("CurrentLocation", "GPS location on refresh (lag, long): " + latitude + " " + longitude);
 
-                        @Override
-                        public void onCancelled(FirebaseError firebaseError) {
-
-                        }
-                    });
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    eventsRetreivedCount++;
-                    if(eventsRetreivedCount > 20) {
-                        geoQuery.removeAllListeners();
-                    }
-                }
-
-                @Override
-                public void onKeyExited(String key) {
-
-                }
-
-                @Override
-                public void onKeyMoved(String key, GeoLocation location) {
-
-                }
-
-                @Override
-                public void onGeoQueryReady() {
-
-                }
-
-                @Override
-                public void onGeoQueryError(FirebaseError error) {
-
-                }
-            });
-            return eventNameList;
+            // 20 km radius search for events
+            geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude, longitude), 20.0);
+            // limit query to at most 20 results
+            mLimitedQuery = new LimitedGeoQueryEventListener(mEventFeedFragment, 20);
+            geoQuery.addGeoQueryEventListener(mLimitedQuery);
+            SystemClock.sleep(6000);
+            Log.v("EventFetchTask", "Exit doBackgroundProcess");
+            return true;
         }
 
         @Override
-        protected void onPostExecute(List<String> eventNames) {
-            Log.v("EventFetchTask", "Events: " + eventNames.size());
-            for(String s : eventNames) {
-                mAdapter.add(s);
-                Log.v("EventFetchTask", "Event: " + s + " added to adapter.");
-            }
-            mAdapter.notifyDataSetChanged();
+        protected void onPostExecute(Boolean success) {
+            mEventFeedFragment.removeRefreshGeoQueryListener(mLimitedQuery);
+            Log.v("EventFetchTask", "Exit onPostExecute");
         }
 
         @Override
