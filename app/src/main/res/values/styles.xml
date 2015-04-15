@@ -4,6 +4,27 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
+        <item name="android:buttonStyle">@style/RoarButtonStyle</item>
+    </style>
+
+    <style name="RoarTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="RoarButtonStyle" parent="android:Widget.Button">
+        <item name="android:background">@color/green</item>
+        <item name="android:textSize">@dimen/button_text_size</item>
+        <item name="android:paddingTop">25dp</item>
+        <item name="android:paddingBottom">25dp</item>
+        <item name="android:paddingLeft">30dp</item>
+        <item name="android:paddingRight">30dp</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="colorBckgrnd">
+        <item name="android:background">@color/yellow</item>
     </style>
 
 </resources>

@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -62,6 +63,8 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         setContentView(R.layout.activity_sign_up);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));

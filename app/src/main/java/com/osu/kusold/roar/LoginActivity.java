@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -63,6 +64,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         setContentView(R.layout.activity_login);
         Log.v("Create", "The LoginActivity onCreate was called.");
 
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
         fRef.addAuthStateListener(new Firebase.AuthStateListener() {
@@ -110,14 +112,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             @Override
             public void onClick(View view) {
                 attemptLogin();
-            }
-        });
-
-        Button mEmailSignUpButton = (Button) findViewById(R.id.email_sign_up_button);
-        mEmailSignUpButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switchToSignUp();
             }
         });
 
