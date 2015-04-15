@@ -15,9 +15,11 @@
     <ImageButton
         android:layout_width="200dp"
         android:layout_height="200dp"
+        android:maxHeight="200dp"
+        android:maxWidth="200dp"
         android:id="@+id/addProfileImg"
         android:layout_gravity="center_horizontal"
-        android:adjustViewBounds="false"
+        android:adjustViewBounds="true"
         android:scaleType="centerCrop" />
 
     <LinearLayout
@@ -29,13 +31,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Name (public)"
-            android:id="@+id/textView" />
+            android:text="@string/prompt_name" />
 
         <EditText android:id="@+id/create_profile_name" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:hint="@string/prompt_name"
-            android:imeOptions="actionUnspecified" android:inputType="textPersonName"
-            android:maxLines="1" android:singleLine="true" />
+            android:layout_height="wrap_content"
+            android:hint="@string/name"
+            android:imeOptions="actionUnspecified"
+            android:inputType="textPersonName"
+            android:maxLines="1"
+            android:singleLine="true" />
     </LinearLayout>
 
     <LinearLayout
@@ -48,8 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Age"
-            android:id="@+id/textView2"
+            android:text="@string/age"
             android:layout_weight="0.33" />
 
         <NumberPicker
@@ -68,8 +71,7 @@
             android:layout_width="121dp"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Gender"
-            android:id="@+id/textView3"
+            android:text="@string/gender"
             android:layout_weight=".33" />
 
         <Spinner

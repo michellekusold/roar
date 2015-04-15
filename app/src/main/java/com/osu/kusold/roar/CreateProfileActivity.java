@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -17,13 +18,21 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.util.Map;
 
 
 public class CreateProfileActivity extends ActionBarActivity {
@@ -34,6 +43,8 @@ public class CreateProfileActivity extends ActionBarActivity {
     private EditText mNameView;
     private String mUid;
     private Spinner mGenderOptions;
+    private String age, name, gender, profilePic;
+    ArrayAdapter<CharSequence> adapter;
 
     private static int RESULT_LOAD_IMG = 1;
     String imgDecodableString;
@@ -64,9 +75,41 @@ public class CreateProfileActivity extends ActionBarActivity {
 
         // gender options
         mGenderOptions = (Spinner) findViewById(R.id.genderOptions);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.gender_options, android.R.layout.simple_spinner_item);
+        adapter = ArrayAdapter.createFromResource(this, R.array.gender_options, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mGenderOptions.setAdapter(adapter);
+
+        // populate information if it already exists (View Profile Functionality)
+        fRefProfile.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                // do some stuff once
+                Map<String, Object> profileData = (Map<String, Object>) snapshot.getValue();
+                // profileData will not be null if the user is editing the profile
+                if(profileData != null) {
+                    name = profileData.get("name").toString();
+                    gender = profileData.get("gender").toString();
+                    age = profileData.get("age").toString();
+                    profilePic = profileData.get("photo").toString();
+
+                    // set image
+                    Drawable dPic = decodeBase64(profilePic);
+                    mProfilePic.setImageDrawable(dPic);
+                    // set name
+                    mNameView.setText(name);
+                    // set age
+                    mAgePicker.setValue(Integer.parseInt(age));
+                    // set gender
+                    int spinnerPosition = adapter.getPosition(gender);
+                    mGenderOptions.setSelection(spinnerPosition);
+                }
+            }
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                System.out.println("The read failed: " + firebaseError.getMessage());
+            }
+        });
+
 
         Button submitProfileButton = (Button) findViewById(R.id.create_profile_submit);
         submitProfileButton.setOnClickListener(new View.OnClickListener() {
@@ -116,11 +159,10 @@ public class CreateProfileActivity extends ActionBarActivity {
                 int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                 imgDecodableString = cursor.getString(columnIndex);
                 cursor.close();
+
                 ImageButton imgBtn = (ImageButton) findViewById(R.id.addProfileImg);
-                imgBtn.setImageURI(selectedImage);
-                // Set the Image in ImageView after decoding the String
-                //imgBtn.setImageBitmap(BitmapFactory
-                //        .decodeFile(imgDecodableString));
+                Drawable sizedImg = scaleImage(selectedImage);
+                imgBtn.setImageDrawable(sizedImg);
 
             } else {
                 Toast.makeText(this, "You haven't picked Image",
@@ -133,7 +175,76 @@ public class CreateProfileActivity extends ActionBarActivity {
 
     }
 
-    /* Converts the image to a format storable in FireBase */
+    /* Take in a Uri resource, scale it, then return a drawable */
+    public Drawable scaleImage(Uri image) throws FileNotFoundException{
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(this.getContentResolver().openInputStream(image), null, options);
+
+        // find dimensions we want to scale to
+        int imgViewHeight = mProfilePic.getHeight();
+        int imgViewWidth = mProfilePic.getWidth();
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, imgViewHeight, imgViewWidth);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        Bitmap bImg = BitmapFactory.decodeStream(this.getContentResolver().openInputStream(image), null, options);
+
+        Drawable d = new BitmapDrawable(getResources(),bImg);
+        return d;
+    }
+
+    /* Caculates a sample size value that is a power of two based on a target width and height */
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+    public Drawable decodeBase64(String input)
+    {
+        // preventing memory issues:
+        // Decode with inJustDecodeBounds=true to check dimensions
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        byte[] decodedByte = Base64.decode(input, 0);
+        BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length, options);
+
+        // find dimensions we want to scale to
+        int imgViewHeight = mProfilePic.getHeight();
+        int imgViewWidth = mProfilePic.getWidth();
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, imgViewHeight, imgViewWidth);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+
+        Bitmap bImg = BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length, options);
+
+        Drawable d = new BitmapDrawable(getResources(),bImg);
+        return d;
+    }
+
+
+    /* Converts the full sized image to a format storable in FireBase */
     public static Bitmap drawableToBitmap (Drawable drawable) {
         if (drawable instanceof BitmapDrawable) {
             return ((BitmapDrawable)drawable).getBitmap();
