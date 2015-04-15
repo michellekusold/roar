@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -23,7 +26,7 @@ public class ViewEventActivity extends ActionBarActivity {
     private TextView mEventCost, mEventMaxAttendance, mEventCurrentAttendance, mEventDescription, mEventCategory;
     private Intent viewEventIntent;
     String eventName, eventCity, eventVenue, eventZip, eventAddress1, eventDate, eventTime, eventCost,
-        eventCategory, eventMaxAttendance, eventCurrentAttendance, eventDescription;
+        eventCategory, eventMaxAttendance, eventCurrentAttendance, eventDescription, eventId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +38,9 @@ public class ViewEventActivity extends ActionBarActivity {
         fRef = new Firebase(getString(R.string.firebase_ref));
 
         Intent viewEventIntent = getIntent();
-        String eventUID = viewEventIntent.getStringExtra(EventManagerFragment.EVENT_UID);
-        System.out.println("VIEW EVENT ID: " + eventUID);
-        fRefEvent = fRef.child("events").child(eventUID);
+        eventId = viewEventIntent.getStringExtra(EventManagerFragment.EVENT_UID);
+        System.out.println("VIEW EVENT ID: " + eventId);
+        fRefEvent = fRef.child("events").child(eventId);
 
         fRefEvent.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -108,13 +111,27 @@ public class ViewEventActivity extends ActionBarActivity {
             }
         });
 
-        /*Button editProfileButton = (Button) findViewById(R.id.edit_event);
+        Button joinEventButton = (Button) findViewById(R.id.join_event_btn);
+        joinEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Firebase fRefEventParticipant = fRef.child("attendance").child(eventId).child(fRef.getAuth().getUid());
+                if(fRefEventParticipant != null) {
+                    Toast.makeText(getApplicationContext(), "You are already attending the event." , Toast.LENGTH_LONG).show();
+                } else {
+                    fRefEventParticipant.setValue("attending");
+                    Toast.makeText(getApplicationContext(), "You have joined the event." , Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        Button editProfileButton = (Button) findViewById(R.id.edit_event);
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switchToEditEvent();
             }
-        });*/
+        });
     }
 
 

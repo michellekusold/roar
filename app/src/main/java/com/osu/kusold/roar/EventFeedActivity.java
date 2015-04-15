@@ -128,6 +128,9 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
         if (id == R.id.action_settings) {
             return true;
         }
+        else if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
         else if (id == R.id.action_create_event){
             createEvent();
         }

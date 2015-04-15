@@ -56,8 +56,11 @@ public class SplashScreenActivity extends Activity {
                             i = new Intent(SplashScreenActivity.this, EventFeedActivity.class);
                             Log.v("InitialActivity", "User: " + fRef.getAuth().getUid() + " is logged in.");
                     } else {
+                        // TODO
                         // User has account, but not logged in
-                        i = new Intent(SplashScreenActivity.this, LoginActivity.class);
+                        //i = new Intent(SplashScreenActivity.this, LoginActivity.class);
+                        // address signup/login transition
+                        i = new Intent(SplashScreenActivity.this, SignUpActivity.class);
                     }
                 }
                 startActivity(i);

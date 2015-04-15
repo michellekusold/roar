@@ -43,9 +43,10 @@ public class EventPostAdapter extends ArrayAdapter<EventPost> {
         // set the brief event description listed in the eventfeed
         mPostNameView.setText(post.eventName);
         mPostDescriptionView.setText(post.description);
-
-        Drawable thumbnail = decodeBase64(post.image);
-        mPostImageView.setImageDrawable(thumbnail);
+        if(post.image != null) {
+            Drawable thumbnail = decodeBase64(post.image);
+            mPostImageView.setImageDrawable(thumbnail);
+        }
 
         return rowView;
     }
