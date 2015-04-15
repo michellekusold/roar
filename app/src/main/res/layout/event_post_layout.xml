@@ -7,9 +7,12 @@
         android:id="@+id/event_post_image"
         android:layout_width="70dp"
         android:layout_height="70dp"
+        android:maxHeight="70dp"
+        android:maxWidth="70dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/ic_launcher" />
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop" />
 
     <TextView
         android:id="@+id/event_post_name"
