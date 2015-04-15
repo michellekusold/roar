@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -38,9 +37,6 @@ public class ProfileFragment extends Fragment {
     private TextView mAge, mName, mGender;
     private String age, name, gender, profilePic;
     private String mUid;
-
-    private static int RESULT_LOAD_IMG = 1;
-    String imgDecodableString;
 
     private OnFragmentInteractionListener mListener;
 
@@ -83,9 +79,9 @@ public class ProfileFragment extends Fragment {
                 age = profileData.get("age").toString();
                 profilePic = profileData.get("photo").toString();
 
+                mProfilePic = (ImageView) view.findViewById(R.id.profileImg);
                 Drawable dPic = decodeBase64(profilePic);
 
-                mProfilePic = (ImageView) view.findViewById(R.id.profileImg);
                 mProfilePic.setImageDrawable(dPic);
                 mName = (TextView) view.findViewById(R.id.profileName);
                 mName.setText(name);
@@ -109,26 +105,52 @@ public class ProfileFragment extends Fragment {
         startActivity(intent);
     }
 
-    /* Converts the image to a format storable in FireBase */
-    public static Bitmap drawableToBitmap (Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable)drawable).getBitmap();
-        }
-
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
-    }
-
     public Drawable decodeBase64(String input)
     {
+        // preventing memory issues:
+        // Decode with inJustDecodeBounds=true to check dimensions
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
         byte[] decodedByte = Base64.decode(input, 0);
-        Bitmap bImg = BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
+        BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length, options);
+
+        // find dimensions we want to scale to
+        int imgViewHeight = mProfilePic.getHeight();
+        int imgViewWidth = mProfilePic.getWidth();
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, imgViewHeight, imgViewWidth);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+
+        Bitmap bImg = BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length, options);
+
         Drawable d = new BitmapDrawable(getResources(),bImg);
         return d;
+    }
+
+    /* Caculates a sample size value that is a power of two based on a target width and height */
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

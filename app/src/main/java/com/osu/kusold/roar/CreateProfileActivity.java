@@ -9,13 +9,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -168,7 +164,6 @@ public class CreateProfileActivity extends ActionBarActivity {
         Bitmap profBmp = drawableToBitmap(mProfilePic.getDrawable());
         ByteArrayOutputStream bYtE = new ByteArrayOutputStream();
         profBmp.compress(Bitmap.CompressFormat.PNG, 100, bYtE);
-        //profBmp.recycle();
         byte[] byteArray = bYtE.toByteArray();
         String imageFile = Base64.encodeToString(byteArray, Base64.DEFAULT);
 
@@ -183,33 +178,9 @@ public class CreateProfileActivity extends ActionBarActivity {
         editor.apply();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_create_profile, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     /* The next intent logically to occur after profile creation has completed */
     private void switchToEventFeed() {
         Intent intent = new Intent(this, EventFeedActivity.class);
-// uncomment to test view profile
-        //Intent intent = new Intent(this, ViewProfileActivity.class);
         startActivity(intent);
     }
 }

@@ -27,9 +27,11 @@
         <ImageView
             android:layout_width="200dp"
             android:layout_height="200dp"
+            android:maxHeight="200dp"
+            android:maxWidth="200dp"
             android:id="@+id/profileImg"
             android:layout_gravity="center_horizontal"
-            android:adjustViewBounds="false"
+            android:adjustViewBounds="true"
             android:scaleType="centerCrop" />
 
         <LinearLayout
