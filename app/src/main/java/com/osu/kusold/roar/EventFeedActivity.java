@@ -100,7 +100,6 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
             actionBar.setDisplayUseLogoEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);
-
         }
 
         // Default show event feed

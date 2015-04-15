@@ -91,7 +91,6 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
             @Override
             public void onRefresh() {
                 // Get 20 event snapshot from firebase
-                mAdapter.clear();
                 refreshEventFeed();
             }
         });
@@ -103,12 +102,14 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
+        refreshEventFeed();
+
         return view;
     }
 
     public void refreshEventFeed() {
+        mAdapter.clear();
         new EventFetchTask(getActivity(), this).execute();
-
     }
 
 

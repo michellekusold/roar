@@ -35,7 +35,7 @@ public class LimitedGeoQueryEventListener implements GeoQueryEventListener {
                     post.eventUid = uid;
                     mEventFeedFragment.addEventToAdapter(post);
                     numOfEventsLoaded++;
-                    Log.v("EventFetchTask", "Event: " + eventData.get("name").toString() + " added to EventNameList.");
+                    Log.v("EventFetchTask", "Event: " + eventData.get("name").toString() + " added to EventNameList of size: " + numOfEventsLoaded+ ".");
                 }
             }
 
