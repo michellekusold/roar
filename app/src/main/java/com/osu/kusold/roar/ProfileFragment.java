@@ -1,6 +1,7 @@
 package com.osu.kusold.roar;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,7 +9,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;

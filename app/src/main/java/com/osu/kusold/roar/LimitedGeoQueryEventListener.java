@@ -35,7 +35,10 @@ public class LimitedGeoQueryEventListener implements GeoQueryEventListener {
                     post.eventUid = uid;
                     mEventFeedFragment.addEventToAdapter(post);
                     numOfEventsLoaded++;
-                    Log.v("EventFetchTask", "Event: " + eventData.get("name").toString() + " added to EventNameList of size: " + numOfEventsLoaded+ ".");
+                    if(numOfEventsLoaded > numOfEventsToQuery) {
+                        mEventFeedFragment.removeRefreshGeoQueryListener();
+                    }
+                    Log.v("EventFetchTask", "Event: " + eventData.get("name").toString() + " added to EventNameList of size: " + numOfEventsLoaded+ " / " + numOfEventsToQuery);
                 }
             }
 
@@ -44,10 +47,6 @@ public class LimitedGeoQueryEventListener implements GeoQueryEventListener {
                 Log.v("LimitedGeoQuery", "LimitedGeoQuery.OnDataChange Firebase error: " + firebaseError.toString());
             }
         });
-        numOfEventsLoaded++;
-        if(numOfEventsLoaded > numOfEventsToQuery) {
-            mEventFeedFragment.removeRefreshGeoQueryListener(this);
-        }
     }
 
     @Override

@@ -74,7 +74,9 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
 
         /*mAdapter = new ArrayAdapter<EventPost>(getActivity(),
                 R.layout.event_post_layout, R.id.event_post_hidden, new ArrayList<EventPost>());*/
-        mAdapter = new EventPostAdapter(getActivity(), new ArrayList<EventPost>());
+        if(savedInstanceState == null) {
+            mAdapter = new EventPostAdapter(getActivity(), new ArrayList<EventPost>());
+        }
     }
 
     @Override
@@ -101,8 +103,10 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
-
-        refreshEventFeed();
+        if(mAdapter.isEmpty()) {
+            refreshEventFeed();
+            Log.d("EventFeedFragment", "mAdapter empty, refresh.");
+        }
 
         return view;
     }
@@ -175,11 +179,20 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     /*
     *   Used by the listener to stop querying GeoFire after limited results.
      */
-    public void removeRefreshGeoQueryListener(GeoQueryEventListener listener) {
+    public void removeRefreshGeoQueryListener() {
         mListView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
         mSwipeRefreshLayout.setRefreshing(false);
-        geoQuery.removeGeoQueryEventListener(listener);
+        geoQuery.removeAllListeners();
+        geoQuery.setRadius(0.0);
+    }
+
+    public void onSaveInstanceState(Bundle savedState) {
+
+        super.onSaveInstanceState(savedState);
+        // Put all event posts in intent and put scroll location too
+        geoQuery.removeAllListeners();
+
     }
 
     /**
@@ -219,14 +232,14 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
             // limit query to at most 20 results
             mLimitedQuery = new LimitedGeoQueryEventListener(mEventFeedFragment, 20);
             geoQuery.addGeoQueryEventListener(mLimitedQuery);
-            SystemClock.sleep(8000);
+            SystemClock.sleep(3000);
             Log.v("EventFetchTask", "Exit doBackgroundProcess");
             return true;
         }
 
         @Override
         protected void onPostExecute(Boolean success) {
-            mEventFeedFragment.removeRefreshGeoQueryListener(mLimitedQuery);
+            mEventFeedFragment.removeRefreshGeoQueryListener();
             Log.v("EventFetchTask", "Exit onPostExecute");
         }
 

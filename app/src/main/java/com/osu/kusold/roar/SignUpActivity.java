@@ -367,6 +367,8 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                 public void run() {
                     Intent intent;
                     if(fRef.getAuth() != null) {
+                        SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE);
+                        settings.edit().putBoolean(fRef.getAuth().getUid() + getString(R.string.is_profile_info_complete), false).apply();
                         Log.v("Login", "Uid" + fRef.getAuth().getUid());
                         intent = new Intent(mContext, CreateProfileActivity.class);
                     } else {
@@ -376,7 +378,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                     }
                     startActivity(intent);
                 } // public void run
-            }, 2000); // Handler
+            }, 3000); // Handler
 
         }
 

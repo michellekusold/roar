@@ -197,10 +197,7 @@ public class CreateEventActivity extends ActionBarActivity {
         mUid = fRef.getAuth().getUid();
         fRefUser = fRef.child("users").child(mUid);
 
-        fRefUser.child("events").child(eventId).setValue("created");
-        fRefNewEvent.child("name").setValue(mEventName.getText().toString());
-
-        // Geocoding
+        // Event address and Geocoding
         Firebase fRefAddr1 = fRefNewEvent.child("address1");
         try {
             Geocoder geocoder = new Geocoder(this);
@@ -226,22 +223,22 @@ public class CreateEventActivity extends ActionBarActivity {
         }catch (Exception ex) {
             Log.v("CreateEventActivity", "Error: " + ex.toString());
         }
-        // Attendance
-        fRefNewEvent.child("attendance").child("currentAttendance").setValue(0); //No people are attending at creation
-        fRefNewEvent.child("attendance").child("pending"); // UID of requested users
-        fRefNewEvent.child("attendance").child("accepted"); // UID of users approved by host
-        // Other info
+
+        // Other event info
+        fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
+        fRefNewEvent.child("name").setValue(mEventName.getText().toString());
         fRefNewEvent.child("venue").setValue(mEventVenue.getText().toString());
         fRefNewEvent.child("city").setValue(mEventCity.getText().toString());
         fRefNewEvent.child("zip").setValue(mEventZip.getText().toString());
         fRefNewEvent.child("cost").setValue(mEventCost.getText().toString());
         fRefNewEvent.child("category").setValue(mCategoryOptions.getSelectedItem().toString());
-        fRefNewEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
         fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
         fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
         fRefNewEvent.child("date").setValue(mEventDate.getCalendarView().getDate());
         fRefNewEvent.child("phone").setValue(mPhoneNumber.getText().toString());
         fRefNewEvent.child("email").setValue(mEmailAddress.getText().toString());
+        fRefNewEvent.child("currentAttendance").setValue(1); //No people are attending at creation
+        fRefNewEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
         if (mEventTime.getCurrentMinute() < 10){
             fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + "0" + mEventTime.getCurrentMinute().toString());
         }
@@ -263,6 +260,12 @@ public class CreateEventActivity extends ActionBarActivity {
 
         // Submit to GeoFire
         geoFire.setLocation(eventId, new GeoLocation(geoLat, geoLong));
+
+        // Update user information with event
+        fRefUser.child("events").child(eventId).setValue("created");
+
+        // Update attendance information with host
+        fRef.child("attendance").child(eventId).child(fRef.getAuth().getUid()).setValue("host");
     }
 
     private void switchToEventFeed() {

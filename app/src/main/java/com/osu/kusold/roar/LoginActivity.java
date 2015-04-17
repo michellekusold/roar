@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -112,6 +113,14 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             @Override
             public void onClick(View view) {
                 attemptLogin();
+            }
+        });
+
+        Button mEmailSignUpButton = (Button) findViewById(R.id.email_sign_up_button);
+        mEmailSignUpButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchToSignUp();
             }
         });
 
@@ -344,7 +353,14 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             showProgress(false);
             Intent intent;
             if(fRef.getAuth() != null) {
-                intent = new Intent(mContext, EventFeedActivity.class);
+                SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE);
+                if(!settings.getBoolean(fRef.getAuth().getUid() + getString(R.string.is_profile_info_complete), true)) {
+                    intent = new Intent(mContext, CreateProfileActivity.class);
+                    settings.edit().putBoolean(fRef.getAuth().getUid() + getString(R.string.is_profile_info_complete), true).apply();
+                } else {
+                    intent = new Intent(mContext, EventFeedActivity.class);
+                }
+
             } else {
                 intent = new Intent(mContext, LoginActivity.class);
                 intent.putExtra(LoginActivity.EMAIL_ADDRESS_MESSAGE, mEmail);

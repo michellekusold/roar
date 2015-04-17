@@ -3,6 +3,7 @@ package com.osu.kusold.roar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,13 +21,14 @@ import java.util.Map;
 /* Class to view the user's Profile */
 public class ViewEventActivity extends ActionBarActivity {
 
-    private Firebase fRef, fRefEvent;
+    private Firebase fRef, fRefEvent, fRefUser;
     private TextView mEventName, mEventVenue, mEventAddress1, mEventAddress2, mEventCity, mEventZip;
     private TextView mEventDate,mEventTime;
     private TextView mEventCost, mEventMaxAttendance, mEventCurrentAttendance, mEventDescription, mEventCategory;
     private Intent viewEventIntent;
-    String eventName, eventCity, eventVenue, eventZip, eventAddress1, eventDate, eventTime, eventCost,
+    String eventName, eventHost, eventCity, eventVenue, eventZip, eventAddress1, eventDate, eventTime, eventCost,
         eventCategory, eventMaxAttendance, eventCurrentAttendance, eventDescription, eventId;
+    String userAttendanceStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +38,7 @@ public class ViewEventActivity extends ActionBarActivity {
         // Firebase root setup
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
-
+        fRefUser = fRef.child("users").child(fRef.getAuth().getUid());
         Intent viewEventIntent = getIntent();
         eventId = viewEventIntent.getStringExtra(EventManagerFragment.EVENT_UID);
         System.out.println("VIEW EVENT ID: " + eventId);
@@ -49,6 +51,7 @@ public class ViewEventActivity extends ActionBarActivity {
                 // Retrieve from firebase
                 Map<String, Object> eventData = (Map<String, Object>) snapshot.getValue();
                 eventName = eventData.get("name").toString();
+                eventHost = eventData.get("host").toString();
                 System.out.println("VIEW EVENT: name: " + eventName);
                 DataSnapshot addrSnapshot = snapshot.child("address1");
                 Map<String,Object> addrData = (Map<String,Object>) addrSnapshot.getValue();
@@ -115,12 +118,22 @@ public class ViewEventActivity extends ActionBarActivity {
         joinEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Firebase fRefEventParticipant = fRef.child("attendance").child(eventId).child(fRef.getAuth().getUid());
-                if(fRefEventParticipant != null) {
-                    Toast.makeText(getApplicationContext(), "You are already attending the event." , Toast.LENGTH_LONG).show();
-                } else {
-                    fRefEventParticipant.setValue("attending");
-                    Toast.makeText(getApplicationContext(), "You have joined the event." , Toast.LENGTH_LONG).show();
+                Firebase fRefAttendingEventUser = fRef.child("attendance").child(eventId).child(fRef.getAuth().getUid());
+
+                if(eventHost.equals(fRef.getAuth().getUid())) {
+                    Toast.makeText(getApplicationContext(), "You are hosting the event." , Toast.LENGTH_SHORT).show();
+                } else if(userAttendanceStatus != null) {
+                    if(userAttendanceStatus.equals("attending")) {
+                        Toast.makeText(getApplicationContext(), "You are already attending the event." , Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else {
+                    fRefUser.child("events").child(eventId).setValue("attending");
+                    fRefAttendingEventUser.setValue("attending");
+                    int numAttend = Integer.parseInt(eventCurrentAttendance);
+                    numAttend++;
+                    fRefEvent.child("currentAttendance").setValue(Integer.toString(numAttend));
+                    Toast.makeText(getApplicationContext(), "You have joined the event." , Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -130,6 +143,21 @@ public class ViewEventActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
                 switchToEditEvent();
+            }
+        });
+
+        fRefUser.child("events").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.hasChild(eventId)) {
+                    userAttendanceStatus = dataSnapshot.child(eventId).getValue().toString();
+                    Log.d("ViewEventActivity", "For event, user has status: " + userAttendanceStatus);
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                Log.d("ViewEventActivity", firebaseError.toString());
             }
         });
     }

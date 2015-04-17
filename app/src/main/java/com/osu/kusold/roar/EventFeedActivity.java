@@ -36,6 +36,7 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
     String mUid;
     double longitude, latitude;
     GeoFire geoFire;
+    EventFeedFragment mPersistantEventFeedFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,8 +106,8 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
         // Default show event feed
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        EventFeedFragment fragment = new EventFeedFragment();
-        fragmentTransaction.add(R.id.fragment_container, fragment);
+        mPersistantEventFeedFragment = new EventFeedFragment();
+        fragmentTransaction.add(R.id.fragment_container, mPersistantEventFeedFragment);
         fragmentTransaction.commit();
     }
 
@@ -162,7 +163,7 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             EventFeedFragment fragment = new EventFeedFragment();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
+            fragmentTransaction.replace(R.id.fragment_container, mPersistantEventFeedFragment);
             fragmentTransaction.commit();
         } else if (position == 1) {     // Event Manager
             FragmentManager fragmentManager = getFragmentManager();
