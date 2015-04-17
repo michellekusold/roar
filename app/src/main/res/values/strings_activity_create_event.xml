@@ -6,7 +6,7 @@
     <string name="event_name">Event Name</string>
     <string name="location">Location</string>
     <string name="venue_name">Venue Name</string>
-    <string name="address_1">Address Line 1</string>
+    <string name="address_1">Address</string>
     <string name="address_2">Address Line 2</string>
     <string name="city">City</string>
     <string name="zip">Zip Code</string>
@@ -16,6 +16,9 @@
     <string name="max_attendance">Max Attendance</string>
     <string name="description">Description</string>
     <string name="description_hint">Description of your event</string>
+    <string name="contact_info">Contact Information</string>
+    <string name="phone_num">Phone Number</string>
+    <string name="email">Email</string>
 
     <string-array name="category_options">
         <item>Arts and Culture</item>

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -46,7 +47,7 @@ public class CreateEventActivity extends ActionBarActivity {
     private android.support.v7.widget.Toolbar mToolbar;
 
     // Event Variables
-    private EditText mEventName, mEventVenue, mEventAddress1, mEventAddress2, mEventCity, mEventZip;
+    private EditText mEventName, mEventVenue, mEventAddress1, mEventCity, mEventZip;
     private DatePicker mEventDate;
     private TimePicker mEventTime;
     private EditText mEventCost, mEventMaxAttendance, mEventDescription;
@@ -58,6 +59,7 @@ public class CreateEventActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         // Firebase root setup
         Firebase.setAndroidContext(this);
@@ -71,7 +73,6 @@ public class CreateEventActivity extends ActionBarActivity {
         // Address
         mEventVenue = (EditText) findViewById(R.id.etVenue);
         mEventAddress1 = (EditText) findViewById(R.id.etAddressLine1);
-        mEventAddress2 = (EditText) findViewById(R.id.etAddressLine2);
         mEventCity = (EditText) findViewById(R.id.etCity);
         mEventZip = (EditText) findViewById(R.id.etZip);
         // Date and Time
