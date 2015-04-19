@@ -19,6 +19,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".SplashScreenActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,10 +34,12 @@
         </activity>
         <activity
             android:name=".EventFeedActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_event_feed">
         </activity>
         <activity
             android:name=".CreateProfileActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_create_profile" >
         </activity>
         <activity
@@ -45,10 +48,12 @@
         </activity>
         <activity
             android:name=".CreateEventActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_create_event" >
         </activity>
         <activity
             android:name=".ViewEventActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_view_event" >
         </activity>
 
