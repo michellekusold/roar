@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -42,6 +44,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     private OnFragmentInteractionListener mListener;
     SwipeRefreshLayout mSwipeRefreshLayout;
     GeoQuery geoQuery;
+    EventFetchTask eventFetchTask;
 
     public final static String EVENT_UID = "com.osu.kusold.roar.EVENT_UID_MESSAGE";
 
@@ -111,12 +114,6 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         return view;
     }
 
-    public void refreshEventFeed() {
-        mAdapter.clear();
-        new EventFetchTask(getActivity(), this).execute();
-    }
-
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -180,11 +177,18 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     *   Used by the listener to stop querying GeoFire after limited results.
      */
     public void removeRefreshGeoQueryListener() {
-        mListView.setAdapter(mAdapter);
+        if(geoQuery != null) {
+            geoQuery.removeAllListeners();
+            geoQuery.setRadius(0.0);
+        }
         mAdapter.notifyDataSetChanged();
         mSwipeRefreshLayout.setRefreshing(false);
-        geoQuery.removeAllListeners();
-        geoQuery.setRadius(0.0);
+    }
+
+    public void refreshEventFeed() {
+        mAdapter.clear();
+        eventFetchTask = new EventFetchTask(getActivity(), this);
+        eventFetchTask.execute();
     }
 
     public void onSaveInstanceState(Bundle savedState) {
@@ -193,6 +197,14 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         // Put all event posts in intent and put scroll location too
         geoQuery.removeAllListeners();
 
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        removeRefreshGeoQueryListener();
+        eventFetchTask.cancel(true);
+        Log.v("EventFetchFragment", "onPause called.");
     }
 
     /**
@@ -213,18 +225,16 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         @Override
         protected Boolean doInBackground(Void... params) {
             Log.v("EventFetchTask", "Beginning EventFetch background process.");
-            /*LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);*/
+            LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             double latitude, longitude;
-
-                // GEOFIRE TEST VARS (S.E.L.)
-                latitude = 40.0016740;
-                longitude = -83.0134160;
-            /*
-            else {
+            // GEOFIRE TEST VARS (S.E.L.)
+            latitude = 40.0016740;
+            longitude = -83.0134160;
+            if(location != null) {
                 longitude = location.getLongitude();
                 latitude = location.getLatitude();
-            }*/
+            }
             Log.v("CurrentLocation", "GPS location on refresh (lag, long): " + latitude + " " + longitude);
 
             // 20 km radius search for events
@@ -239,7 +249,6 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
 
         @Override
         protected void onPostExecute(Boolean success) {
-            mEventFeedFragment.removeRefreshGeoQueryListener();
             Log.v("EventFetchTask", "Exit onPostExecute");
         }
 

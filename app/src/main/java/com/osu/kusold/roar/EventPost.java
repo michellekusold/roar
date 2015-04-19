@@ -19,6 +19,7 @@ public class EventPost {
     public String description;
     public String hostUid;
     public String image;
+    public String thumbnail;
     public String eventUid;
     Map<String, Object> mEventData;
 
@@ -30,6 +31,8 @@ public class EventPost {
         zip = eventData.get("zip").toString();
         if(eventData.containsKey("image")) {
             image = eventData.get("image").toString();
+        }if(eventData.containsKey("thumbnail")) {
+            thumbnail = eventData.get("thumbnail").toString();
         }
         // Date and time
         date = eventData.get("date").toString();

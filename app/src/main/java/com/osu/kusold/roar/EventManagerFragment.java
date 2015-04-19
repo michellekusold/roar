@@ -101,12 +101,13 @@ public class EventManagerFragment extends Fragment implements AbsListView.OnItem
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
+        refreshEventManager();
+
         return view;
     }
 
     public void refreshEventManager() {
         new EventManagerTask(getActivity()).execute();
-
     }
 
 

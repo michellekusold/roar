@@ -72,23 +72,25 @@ public class ProfileFragment extends Fragment {
         fRefProfile.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                // do some stuff once
-                Map<String, Object> profileData = (Map<String, Object>) snapshot.getValue();
-                name = profileData.get("name").toString();
-                gender = profileData.get("gender").toString();
-                age = profileData.get("age").toString();
-                profilePic = profileData.get("photo").toString();
+                if(isAdded()) {
+                    // do some stuff once
+                    Map<String, Object> profileData = (Map<String, Object>) snapshot.getValue();
+                    name = profileData.get("name").toString();
+                    gender = profileData.get("gender").toString();
+                    age = profileData.get("age").toString();
+                    profilePic = profileData.get("photo").toString();
 
-                mProfilePic = (ImageView) view.findViewById(R.id.profileImg);
-                Drawable dPic = decodeBase64(profilePic);
+                    mProfilePic = (ImageView) view.findViewById(R.id.profileImg);
+                    Drawable dPic = decodeBase64(profilePic);
 
-                mProfilePic.setImageDrawable(dPic);
-                mName = (TextView) view.findViewById(R.id.profileName);
-                mName.setText(name);
-                mGender = (TextView) view.findViewById(R.id.profileGender);
-                mGender.setText(gender);
-                mAge = (TextView) view.findViewById(R.id.profileAge);
-                mAge.setText(age);
+                    mProfilePic.setImageDrawable(dPic);
+                    mName = (TextView) view.findViewById(R.id.profileName);
+                    mName.setText(name);
+                    mGender = (TextView) view.findViewById(R.id.profileGender);
+                    mGender.setText(gender);
+                    mAge = (TextView) view.findViewById(R.id.profileAge);
+                    mAge.setText(age);
+                }
             }
             @Override
             public void onCancelled(FirebaseError firebaseError) {

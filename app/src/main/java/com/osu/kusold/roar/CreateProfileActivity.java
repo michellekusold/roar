@@ -13,16 +13,14 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
@@ -272,14 +270,23 @@ public class CreateProfileActivity extends ActionBarActivity {
 
     /* Checks to see if valid data was entered and if so, stores it to Firebase*/
     private void submitProfile() {
+        // Store full resolution and thumbnail size for profile picture
         Bitmap profBmp = drawableToBitmap(mProfilePic.getDrawable());
-        ByteArrayOutputStream bYtE = new ByteArrayOutputStream();
-        profBmp.compress(Bitmap.CompressFormat.PNG, 100, bYtE);
-        byte[] byteArray = bYtE.toByteArray();
-        String imageFile = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        profBmp.compress(Bitmap.CompressFormat.PNG, 100, byteBuffer);
+        byte[] byteArray = byteBuffer.toByteArray();
+        String fullImageFile = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        Log.d("CreateProfileActivity", "Profile picture full resolution is size (bytes): " + byteArray.length);
+
+        byteBuffer.reset();
+        profBmp.compress(Bitmap.CompressFormat.JPEG, 0, byteBuffer);
+        byteArray = byteBuffer.toByteArray();
+        String thumbnailImageFile = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        Log.d("CreateProfileActivity", "Profile picture thumbnail is size (bytes): " + byteArray.length);
 
         // store the user's profile information
-        fRefProfile.child("photo").setValue(imageFile);
+        fRefProfile.child("photo").setValue(fullImageFile);
+        fRefProfile.child("photo_thumbnail").setValue(thumbnailImageFile);
         fRefProfile.child("name").setValue(mNameView.getText().toString());
         fRefProfile.child("age").setValue(mAgePicker.getValue());
         fRefProfile.child("gender").setValue(mGenderOptions.getSelectedItem().toString());

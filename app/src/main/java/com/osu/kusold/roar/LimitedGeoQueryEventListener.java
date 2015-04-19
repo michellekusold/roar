@@ -29,16 +29,18 @@ public class LimitedGeoQueryEventListener implements GeoQueryEventListener {
         mEventFeedFragment.fRefEvents.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Object> eventData = (Map<String, Object>) dataSnapshot.getValue();
-                if(eventData != null) {
-                    EventPost post = new EventPost(eventData);
-                    post.eventUid = uid;
-                    mEventFeedFragment.addEventToAdapter(post);
-                    numOfEventsLoaded++;
-                    if(numOfEventsLoaded > numOfEventsToQuery) {
-                        mEventFeedFragment.removeRefreshGeoQueryListener();
+                if(mEventFeedFragment.isAdded()) {
+                    Map<String, Object> eventData = (Map<String, Object>) dataSnapshot.getValue();
+                    if (eventData != null) {
+                        EventPost post = new EventPost(eventData);
+                        post.eventUid = uid;
+                        mEventFeedFragment.addEventToAdapter(post);
+                        numOfEventsLoaded++;
+                        if (numOfEventsLoaded > numOfEventsToQuery) {
+                            mEventFeedFragment.removeRefreshGeoQueryListener();
+                        }
+                        Log.v("EventFetchTask", "Event: " + eventData.get("name").toString() + " added to EventNameList of size: " + numOfEventsLoaded + " / " + numOfEventsToQuery);
                     }
-                    Log.v("EventFetchTask", "Event: " + eventData.get("name").toString() + " added to EventNameList of size: " + numOfEventsLoaded+ " / " + numOfEventsToQuery);
                 }
             }
 
