@@ -2,6 +2,8 @@ package com.osu.kusold.roar;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -148,9 +150,16 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         EventPost post = (EventPost) mAdapter.getItem(position);
         String eventUid = post.eventUid;
-        Intent eventIntent = new Intent(getActivity(), ViewEventActivity.class);
-        eventIntent.putExtra(EVENT_UID , eventUid);
-        startActivity(eventIntent);
+        Log.i("Event fragment ID: ", eventUid);
+        //Intent eventIntent = new Intent(getActivity(), ViewEventActivity.class);
+        //eventIntent.putExtra(EVENT_UID , eventUid);
+        //startActivity(eventIntent);
+        //FragmentManager fragmentManager = getFragmentManager();
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, ViewEventFragment.newInstance(eventUid), "selectedEvent").commit();
+        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        //ViewEventFragment fragment = new ViewEventFragment();
+        //fragmentTransaction.replace(R.id.fragment_container, fragment);
+        //fragmentTransaction.commit();
     }
 
     /**
