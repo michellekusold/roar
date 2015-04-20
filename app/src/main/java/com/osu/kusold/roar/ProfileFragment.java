@@ -75,10 +75,18 @@ public class ProfileFragment extends Fragment {
                 if(isAdded()) {
                     // do some stuff once
                     Map<String, Object> profileData = (Map<String, Object>) snapshot.getValue();
-                    name = profileData.get("name").toString();
-                    gender = profileData.get("gender").toString();
-                    age = profileData.get("age").toString();
-                    profilePic = profileData.get("photo").toString();
+                    if(profileData.containsKey("name")) {
+                        name = profileData.get("name").toString();
+                    }
+                    if(profileData.containsKey("gender")) {
+                        gender = profileData.get("gender").toString();
+                    }
+                    if(profileData.containsKey("age")) {
+                        age = profileData.get("age").toString();
+                    }
+                    if(profileData.containsKey("photo_thumbnail")) {
+                        profilePic = profileData.get("photo_thumbnail").toString();
+                    }
 
                     mProfilePic = (ImageView) view.findViewById(R.id.profileImg);
                     Drawable dPic = decodeBase64(profilePic);

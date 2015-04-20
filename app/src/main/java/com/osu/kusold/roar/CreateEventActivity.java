@@ -250,7 +250,6 @@ public class CreateEventActivity extends ActionBarActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Map<String, Object> profileData = (Map<String, Object>) dataSnapshot.getValue();
-                fRefNewEvent.child("image").setValue(profileData.get("photo").toString());
                 fRefNewEvent.child("thumbnail").setValue(profileData.get("photo_thumbnail").toString());
             }
 

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -75,6 +76,30 @@ public class ViewEventFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_view_event, container, false);
+
+        Button joinEventButton = (Button) view.findViewById(R.id.join_event_btn);
+        joinEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Firebase fRefAttendingEventUser = fRef.child("attendance").child(eventId).child(fRef.getAuth().getUid());
+
+                if(eventHost.equals(fRef.getAuth().getUid())) {
+                    Toast.makeText(getActivity(), "You are hosting the event.", Toast.LENGTH_SHORT).show();
+                } else if(userAttendanceStatus != null) {
+                    if(userAttendanceStatus.equals("attending")) {
+                        Toast.makeText(getActivity(), "You are already attending the event." , Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else {
+                    fRefUser.child("events").child(eventId).setValue("attending");
+                    fRefAttendingEventUser.setValue("attending");
+                    int numAttend = Integer.parseInt(eventCurrentAttendance);
+                    numAttend++;
+                    fRefEvent.child("currentAttendance").setValue(Integer.toString(numAttend));
+                    Toast.makeText(getActivity(), "You have joined the event." , Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         Button editEventButton = (Button) view.findViewById(R.id.edit_event);
         editEventButton.setOnClickListener(new View.OnClickListener() {

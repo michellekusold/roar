@@ -146,11 +146,11 @@ public class ViewEventActivity extends ActionBarActivity {
             }
         });
 
-        fRefUser.child("events").addListenerForSingleValueEvent(new ValueEventListener() {
+        fRefUser.child("events").child(eventId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChild(eventId)) {
-                    userAttendanceStatus = dataSnapshot.child(eventId).getValue().toString();
+                    userAttendanceStatus = dataSnapshot.getValue().toString();
                     Log.d("ViewEventActivity", "For event, user has status: " + userAttendanceStatus);
                 }
             }

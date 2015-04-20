@@ -279,13 +279,13 @@ public class CreateProfileActivity extends ActionBarActivity {
         Log.d("CreateProfileActivity", "Profile picture full resolution is size (bytes): " + byteArray.length);
 
         byteBuffer.reset();
-        profBmp.compress(Bitmap.CompressFormat.JPEG, 0, byteBuffer);
+        profBmp.compress(Bitmap.CompressFormat.JPEG, 10, byteBuffer);
         byteArray = byteBuffer.toByteArray();
         String thumbnailImageFile = Base64.encodeToString(byteArray, Base64.DEFAULT);
         Log.d("CreateProfileActivity", "Profile picture thumbnail is size (bytes): " + byteArray.length);
 
         // store the user's profile information
-        fRefProfile.child("photo").setValue(fullImageFile);
+        //fRefProfile.child("photo").setValue(fullImageFile);
         fRefProfile.child("photo_thumbnail").setValue(thumbnailImageFile);
         fRefProfile.child("name").setValue(mNameView.getText().toString());
         fRefProfile.child("age").setValue(mAgePicker.getValue());
