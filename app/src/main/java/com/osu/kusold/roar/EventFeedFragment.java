@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
@@ -27,6 +28,7 @@ import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * A fragment representing a list of Items.
@@ -44,7 +46,9 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     private OnFragmentInteractionListener mListener;
     SwipeRefreshLayout mSwipeRefreshLayout;
     GeoQuery geoQuery;
+    private Location location;
     EventFetchTask eventFetchTask;
+    private Button mGeoSortButton;
 
     public final static String EVENT_UID = "com.osu.kusold.roar.EVENT_UID_MESSAGE";
 
@@ -75,8 +79,6 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         fRefEvents = fRef.child("events");
         geoFire = new GeoFire(fRef.child("GeoFire"));
 
-        /*mAdapter = new ArrayAdapter<EventPost>(getActivity(),
-                R.layout.event_post_layout, R.id.event_post_hidden, new ArrayList<EventPost>());*/
         if(savedInstanceState == null) {
             mAdapter = new EventPostAdapter(getActivity(), new ArrayList<EventPost>());
         }
@@ -86,12 +88,22 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_eventfeed, container, false);
+        // set up the geo sort button
+        mGeoSortButton = (Button) view.findViewById(R.id.geo_sort);
+        mGeoSortButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v("CLICK", "clickclickclick");
+                sortByLocation();
+                mAdapter.notifyDataSetChanged();
+            }
+        });
 
         /*
         *   A swipe to refresh layout wraps around the list view to give refresh animation
         *   and provides a callback method for onRefresh so we know when to pull from Firebase.
          */
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.event_feed_swipe_refresh_layout);
+                mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.event_feed_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -183,6 +195,8 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         }
         mAdapter.notifyDataSetChanged();
         mSwipeRefreshLayout.setRefreshing(false);
+        geoQuery.removeAllListeners();
+        geoQuery.setRadius(0.0);
     }
 
     public void refreshEventFeed() {
@@ -213,7 +227,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
      */
     public class EventFetchTask extends AsyncTask<Void, Void, Boolean> {
 
-        private Context mContext;
+        Context mContext;
         EventFeedFragment mEventFeedFragment;
         GeoQueryEventListener mLimitedQuery;
 
@@ -226,7 +240,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         protected Boolean doInBackground(Void... params) {
             Log.v("EventFetchTask", "Beginning EventFetch background process.");
             LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             double latitude, longitude;
             // GEOFIRE TEST VARS (S.E.L.)
             latitude = 40.0016740;
@@ -249,6 +263,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
 
         @Override
         protected void onPostExecute(Boolean success) {
+            mEventFeedFragment.removeRefreshGeoQueryListener();
             Log.v("EventFetchTask", "Exit onPostExecute");
         }
 
@@ -256,5 +271,14 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         protected void onCancelled() {
         }
     }
+
+    /* Sorts the fragments by location nearest to the user */
+    public void sortByLocation(){
+        LocationComparator cmp = new LocationComparator();
+        cmp.setUserLocation(location.getLatitude(), location.getLongitude());
+        Log.v("SORTING", "sorting?");
+        mAdapter.sort(cmp);
+    }
+
 
 }

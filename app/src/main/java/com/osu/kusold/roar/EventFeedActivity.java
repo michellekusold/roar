@@ -37,6 +37,7 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
     double longitude, latitude;
     GeoFire geoFire;
     EventFeedFragment mPersistantEventFeedFragment;
+    public Location location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,19 +55,10 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
 
         // get current long/lat of user
         LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if(location == null){
-            // GEOFIRE TEST VARS (S.E.L.)
-            latitude = 40.0016740;
-            longitude =-83.0134160;
-        }
-        else {
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-        }
+        location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        setLocation(location);
+        Log.v("CURRENT LOCATION 1: ", "lat=" + latitude + " lng=" + longitude);
 
-        // set the current location of a user
-        geoFire.setLocation("currentLocation", new GeoLocation(latitude, longitude));
 
         mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(mToolbar);
@@ -185,6 +177,23 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
         }
         mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
+    /* Sets the current location of a user in geofire. If none available, use the SEL as a base*/
+    public void setLocation(Location loc){
+        location = loc;
+        if(location == null){
+            // GEOFIRE TEST VARS (S.E.L.)
+            latitude = 40.0016740;
+            longitude =-83.0134160;
+        }
+        else {
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+        }
+
+        // set the current location of a user
+        geoFire.setLocation("currentLocation", new GeoLocation(latitude, longitude));
     }
 
     /*

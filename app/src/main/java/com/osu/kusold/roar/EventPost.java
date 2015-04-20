@@ -7,25 +7,40 @@ import java.util.Map;
  */
 public class EventPost {
 
-    public String eventName;
-    public String venue;
-    public String city;
-    public String zip;
-    public String date;
-    public String time;
-    public String cost;
-    public String category;
-    public String maxAttendance;
-    public String description;
-    public String hostUid;
-    public String image;
-    public String thumbnail;
-    public String eventUid;
     Map<String, Object> mEventData;
+    public String eventName, venue, city, zip, date, time, cost, category;
+    public String maxAttendance, description, hostUid, image, thumbnail, eventUid;
+    public String latitude, longitude;
 
     public EventPost(Map<String, Object> eventData) {
         mEventData = eventData;
         eventName = eventData.get("name").toString();
+        // location
+        // parse the data from the address json string
+        String addr = eventData.get("address1").toString();
+        String[] tokens = addr.replaceAll("=", " ").split(" ");
+
+        for(int i=0; i<tokens.length; i++){
+            System.out.println("TOKEN: " + i+ " " + tokens[i]);
+            if(tokens[i].contains("lat") && i+1<tokens.length){
+                tokens[i] = tokens[i+1].replaceAll("[^\\d.]", "");
+                tokens[i+1] = tokens[i+1].replaceAll(",$", "");
+                tokens[i+1] = tokens[i+1].replaceAll("[{}]]", "");
+                if (tokens[i+1].length() > 0) {
+                    tokens[i+1] = tokens[i+1].substring(0, tokens[i+1].length()-1);
+                }
+                latitude = tokens[i+1];
+            }
+            if(tokens[i].contains("long") && i+1<tokens.length){
+                tokens[i] = tokens[i+1].replaceAll("[^\\d.]", "");
+                tokens[i+1] = tokens[i+1].replaceAll(",$", "");
+                tokens[i+1] = tokens[i+1].replaceAll("[{}]", "");
+                longitude = tokens[i+1];
+            }
+        }
+        System.out.println("EVENT DATA: lat " + latitude);
+        System.out.println("EVENT DATA: long " + longitude);
+
         //venue = eventData.get("venue").toString();
         city = eventData.get("city").toString();
         zip = eventData.get("zip").toString();
