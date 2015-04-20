@@ -92,7 +92,8 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
             actionBar.setLogo(R.drawable.ic_launcher);
             actionBar.setDisplayUseLogoEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
-            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayShowTitleEnabled(true);
+            actionBar.setTitle("Event Feed");
         }
 
         // Default show event feed
@@ -157,18 +158,21 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
             EventFeedFragment fragment = new EventFeedFragment();
             fragmentTransaction.replace(R.id.fragment_container, mPersistantEventFeedFragment);
             fragmentTransaction.commit();
+            getSupportActionBar().setTitle("Event Feed");
         } else if (position == 1) {     // Event Manager
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             EventManagerFragment fragment = new EventManagerFragment();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
+            getSupportActionBar().setTitle("My Events");
         } else if (position == 2) {     // Profile
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             ProfileFragment fragment = new ProfileFragment();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
+            getSupportActionBar().setTitle("Profile");
         } else if (position == 3) {     // Logout
             logout();
         }

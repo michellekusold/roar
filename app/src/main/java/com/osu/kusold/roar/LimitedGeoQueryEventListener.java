@@ -17,10 +17,15 @@ public class LimitedGeoQueryEventListener implements GeoQueryEventListener {
 
     int numOfEventsToQuery, numOfEventsLoaded;
     EventFeedFragment mEventFeedFragment;
+    boolean ignoreEvents = false;
 
     public LimitedGeoQueryEventListener(EventFeedFragment eventFeedFragment, int numOfEvents) {
         mEventFeedFragment = eventFeedFragment;
         numOfEventsToQuery = numOfEvents;
+    }
+
+    public void setIgnoreEvents() {
+        ignoreEvents = true;
     }
 
     @Override
@@ -29,7 +34,7 @@ public class LimitedGeoQueryEventListener implements GeoQueryEventListener {
         mEventFeedFragment.fRefEvents.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(mEventFeedFragment.isAdded()) {
+                if(mEventFeedFragment.isAdded() && !ignoreEvents) {
                     Map<String, Object> eventData = (Map<String, Object>) dataSnapshot.getValue();
                     if (eventData != null) {
                         EventPost post = new EventPost(eventData);
@@ -39,8 +44,10 @@ public class LimitedGeoQueryEventListener implements GeoQueryEventListener {
                         if (numOfEventsLoaded > numOfEventsToQuery) {
                             mEventFeedFragment.removeRefreshGeoQueryListener();
                         }
-                        Log.v("EventFetchTask", "Event: " + eventData.get("name").toString() + " added to EventNameList of size: " + numOfEventsLoaded + " / " + numOfEventsToQuery);
+                        Log.v("LimitedGeoQuery", "Event: " + eventData.get("name").toString() + " added to EventNameList of size: " + numOfEventsLoaded + " / " + numOfEventsToQuery);
                     }
+                } else {
+                    Log.v("LimitedGeoQuery", "Event ignored: " + uid);
                 }
             }
 
