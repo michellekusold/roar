@@ -354,6 +354,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             Intent intent;
             if(fRef.getAuth() != null) {
                 SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE);
+                // if the user logs in from loginActivity, they are not a new user
+                SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.share_pref_file),MODE_PRIVATE).edit();
+                editor.putBoolean(getString(R.string.is_new_user), false);
+                editor.commit();
+                // check to see if they have filled out a profile yet
                 if(!settings.getBoolean(fRef.getAuth().getUid() + getString(R.string.is_profile_info_complete), true)) {
                     intent = new Intent(mContext, CreateProfileActivity.class);
                     settings.edit().putBoolean(fRef.getAuth().getUid() + getString(R.string.is_profile_info_complete), true).apply();

@@ -9,7 +9,9 @@ import android.util.Log;
 
 import com.firebase.client.Firebase;
 
-
+/* Start-Up Screen that is seen on launch
+ *
+ */
 public class SplashScreenActivity extends Activity {
 
     private static int SPLASH_TIME_OUT = 2000;
@@ -26,18 +28,13 @@ public class SplashScreenActivity extends Activity {
 
         new Handler().postDelayed(new Runnable() {
 
-            /*
-             * Showing splash screen with a timer. This will be useful when you
-             * want to show case your app logo / company
-             */
-
             @Override
             public void run() {
                 // This method will be executed once the timer is over
-
                 Intent i;
                 SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE);
-                boolean isNewUser = settings.getBoolean(getString(R.string.is_new_user), true);
+                // returns true if "isNewUser" does not exist which means it is a new user
+                boolean isNewUser = !settings.contains(getString(R.string.is_new_user));
 
                 /*
                  * Decision logic for beginning activity follows:
@@ -47,10 +44,12 @@ public class SplashScreenActivity extends Activity {
                  *      account created, logged in, profile complete -> eventfeed
                  */
                 if(isNewUser) {
+                    Log.v("AUTH: ", "new user");
                     // User does not have an account
                     i = new Intent(SplashScreenActivity.this, SignUpActivity.class);
                 }
                 else {
+                    Log.v("AUTH: ", "not a new user");
                     // If logged in
                     if(fRef.getAuth() != null) {
                             i = new Intent(SplashScreenActivity.this, EventFeedActivity.class);
@@ -58,9 +57,8 @@ public class SplashScreenActivity extends Activity {
                     } else {
                         // TODO
                         // User has account, but not logged in
-                        //i = new Intent(SplashScreenActivity.this, LoginActivity.class);
-                        // address signup/login transition
-                        i = new Intent(SplashScreenActivity.this, SignUpActivity.class);
+                       Log.v("AUTH: ", "has an account but not logged in");
+                        i = new Intent(SplashScreenActivity.this, LoginActivity.class);
                     }
                 }
                 startActivity(i);
