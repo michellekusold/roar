@@ -31,4 +31,5 @@ dependencies {
     compile 'com.google.android.gms:play-services:6.5.87'
     compile 'com.firebase:firebase-client-android:2.2.0+'
     compile 'com.firebase:geofire:1.1.0+'
+    androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.2.1'
 }
