@@ -25,7 +25,7 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 
 
-public class EventFeedActivity extends ActionBarActivity implements EventFeedFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener, EventManagerFragment.OnFragmentInteractionListener {
+public class EventFeedActivity extends ActionBarActivity implements EventFeedFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener, ViewEventFragment.OnFragmentInteractionListener, EventManagerFragment.OnFragmentInteractionListener {
 
     private Firebase fRef, fRefUser, fRefProfile;
     private String[] mDrawerTitles;
