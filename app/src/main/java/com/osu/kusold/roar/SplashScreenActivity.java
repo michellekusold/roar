@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 
 import com.firebase.client.Firebase;
 
@@ -44,20 +43,15 @@ public class SplashScreenActivity extends Activity {
                  *      account created, logged in, profile complete -> eventfeed
                  */
                 if(isNewUser) {
-                    Log.v("AUTH: ", "new user");
                     // User does not have an account
                     i = new Intent(SplashScreenActivity.this, SignUpActivity.class);
                 }
                 else {
-                    Log.v("AUTH: ", "not a new user");
                     // If logged in
                     if(fRef.getAuth() != null) {
                             i = new Intent(SplashScreenActivity.this, EventFeedActivity.class);
-                            Log.v("InitialActivity", "User: " + fRef.getAuth().getUid() + " is logged in.");
                     } else {
-                        // TODO
                         // User has account, but not logged in
-                       Log.v("AUTH: ", "has an account but not logged in");
                         i = new Intent(SplashScreenActivity.this, LoginActivity.class);
                     }
                 }
