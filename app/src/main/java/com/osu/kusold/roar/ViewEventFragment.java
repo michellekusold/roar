@@ -63,12 +63,11 @@ public class ViewEventFragment extends Fragment {
         Firebase.setAndroidContext(getActivity());
         fRef = new Firebase(getString(R.string.firebase_ref));
         fRefUser = fRef.child("users").child(fRef.getAuth().getUid());
-        //Intent viewEventIntent = getIntent();
         Log.i("selected_event_id: ", selectedEvent);
-        //eventId = viewEventIntent.getStringExtra(selectedEvent);
-        //eventId = viewEventIntent.getStringExtra(EventManagerFragment.EVENT_UID);
+
         System.out.println("VIEW EVENT ID: " + selectedEvent);
         fRefEvent = fRef.child("events").child(selectedEvent);
+        eventId = selectedEvent;
     }
 
     @Override

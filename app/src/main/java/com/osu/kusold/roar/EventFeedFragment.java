@@ -18,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
-import android.widget.TextView;
 
 import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
@@ -76,10 +75,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         fRef = new Firebase(getString(R.string.firebase_ref));
         fRefEvents = fRef.child("events");
         geoFire = new GeoFire(fRef.child("GeoFire"));
-
-        if(savedInstanceState == null) {
-            mAdapter = new EventPostAdapter(getActivity(), new ArrayList<EventPost>());
-        }
+        mAdapter = new EventPostAdapter(getActivity(), new ArrayList<EventPost>());
     }
 
     @Override
@@ -101,7 +97,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         *   A swipe to refresh layout wraps around the list view to give refresh animation
         *   and provides a callback method for onRefresh so we know when to pull from Firebase.
          */
-                mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.event_feed_swipe_refresh_layout);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.event_feed_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -117,7 +113,6 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
         if(mAdapter.isEmpty()) {
-            mSwipeRefreshLayout.setRefreshing(true);
             refreshEventFeed();
             Log.d("EventFeedFragment", "mAdapter empty, refresh.");
         }
@@ -157,19 +152,6 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         //ViewEventFragment fragment = new ViewEventFragment();
         //fragmentTransaction.replace(R.id.fragment_container, fragment);
         //fragmentTransaction.commit();
-    }
-
-    /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText(CharSequence emptyText) {
-        View emptyView = mListView.getEmptyView();
-
-        if (emptyView instanceof TextView) {
-            ((TextView) emptyView).setText(emptyText);
-        }
     }
 
     /**
