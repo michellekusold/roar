@@ -9,6 +9,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Roar-robotium create account" />
+            <option value="$PROJECT_DIR$/Roar-robotium login and create event" />
+            <option value="$PROJECT_DIR$/Roar_Robotium_Test_Cases" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
