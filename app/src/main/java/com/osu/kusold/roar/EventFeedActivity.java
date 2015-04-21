@@ -49,8 +49,10 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
         Firebase.setAndroidContext(this);
         fRef = new Firebase(getString(R.string.firebase_ref));
         // GeoFire setup
-        mUid = fRef.getAuth().getUid();
-        if(mUid == null) {
+        if(fRef.getAuth().getUid() != null) {
+            mUid = fRef.getAuth().getUid();
+        }
+        else {
             logout();
         }
         fRefUser = fRef.child("users").child(mUid);
