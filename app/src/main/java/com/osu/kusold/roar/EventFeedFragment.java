@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
+import android.widget.Toast;
 
 import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
@@ -27,13 +28,10 @@ import com.firebase.geofire.GeoQuery;
 import java.util.ArrayList;
 
 /**
- * A fragment representing a list of Items.
- * <p/>
+ * A fragment representing a list of Event Items.
+ *
  * Large screen devices (such as tablets) are supported by replacing the ListView
  * with a GridView.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
- * interface.
  */
 public class EventFeedFragment extends Fragment implements AbsListView.OnItemClickListener {
 
@@ -46,8 +44,6 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     EventFetchTask eventFetchTask;
     private Button mGeoSortButton;
     LimitedGeoQueryEventListener mLimitedGeoQuery;
-
-    public final static String EVENT_UID = "com.osu.kusold.roar.EVENT_UID_MESSAGE";
 
     /**
      * The fragment's ListView/GridView.
@@ -67,6 +63,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     public EventFeedFragment() {
     }
 
+    /* Sets up firebase and the adapter */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,7 +84,6 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         mGeoSortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v("CLICK", "clickclickclick");
                 sortByLocation();
                 mAdapter.notifyDataSetChanged();
             }
@@ -143,15 +139,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         EventPost post = (EventPost) mAdapter.getItem(position);
         String eventUid = post.eventUid;
         Log.i("Event fragment ID: ", eventUid);
-        //Intent eventIntent = new Intent(getActivity(), ViewEventActivity.class);
-        //eventIntent.putExtra(EVENT_UID , eventUid);
-        //startActivity(eventIntent);
-        //FragmentManager fragmentManager = getFragmentManager();
         getFragmentManager().beginTransaction().replace(R.id.fragment_container, ViewEventFragment.newInstance(eventUid), "selectedEvent").commit();
-        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        //ViewEventFragment fragment = new ViewEventFragment();
-        //fragmentTransaction.replace(R.id.fragment_container, fragment);
-        //fragmentTransaction.commit();
     }
 
     /**
@@ -159,13 +147,8 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(String id);
     }
 
@@ -226,18 +209,28 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         @Override
         protected Boolean doInBackground(Void... params) {
             Log.v("EventFetchTask", "Beginning EventFetch background process.");
+
             LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             double latitude, longitude;
             // GEOFIRE TEST VARS (S.E.L.)
             latitude = 40.0016740;
             longitude = -83.0134160;
-            if(location != null) {
-                longitude = location.getLongitude();
-                latitude = location.getLatitude();
+            location = new Location("");
+            location.setLatitude(latitude);
+            location.setLongitude(longitude);
+            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if(location != null) {
+                    longitude = location.getLongitude();
+                    latitude = location.getLatitude();
+                }
+            }else{
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getActivity(),"No GPS signal available", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
-            Log.v("CurrentLocation", "GPS location on refresh (lag, long): " + latitude + " " + longitude);
-
             // 20 km radius search for events
             geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude, longitude), 20.0);
             // limit query to at most 20 results
@@ -262,10 +255,29 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
 
     /* Sorts the fragments by location nearest to the user */
     public void sortByLocation(){
-        LocationComparator cmp = new LocationComparator();
-        cmp.setUserLocation(location.getLatitude(), location.getLongitude());
-        Log.v("SORTING", "sorting?");
-        mAdapter.sort(cmp);
+        LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
+        if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            if(location == null){
+                // GEOFIRE TEST VARS (S.E.L.)
+                double latitude, longitude;
+                latitude = 40.0016740;
+                longitude = -83.0134160;
+                location = new Location("");
+                location.setLatitude(latitude);
+                location.setLongitude(longitude);
+            }
+            LocationComparator cmp = new LocationComparator();
+            cmp.setUserLocation(location.getLatitude(), location.getLongitude());
+            Log.v("SORTING", "sorting?");
+            mAdapter.sort(cmp);
+        }else{
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(getActivity(),"No GPS signal available", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
 

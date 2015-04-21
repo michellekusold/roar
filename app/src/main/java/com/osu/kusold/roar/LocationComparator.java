@@ -8,7 +8,9 @@ import com.firebase.client.Firebase;
 import java.util.Comparator;
 
 /**
- * Created by kusold on 4/3/15.
+ * Location Comparator uses the user's current location and each event
+ * location to find the event with the shortest distance and return it
+ * to be used to arrange the Event Feed Fragments.
  */
 public class LocationComparator implements Comparator<EventPost> {
         private double userLat = 40.0016740;
@@ -18,8 +20,6 @@ public class LocationComparator implements Comparator<EventPost> {
         @Override
         public int compare(EventPost a, EventPost b) {
             if(userLoc != null) {
-                Log.v("EVENT A IS: ", a.eventName);
-                Log.v("EVENT B IS: ", a.eventName);
                 Location eventLocA = setEventLocation(a);
                 Location eventLocB = setEventLocation(b);
 

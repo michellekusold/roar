@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
@@ -58,9 +59,18 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
 
         // get current long/lat of user
         LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        setLocation(location);
-        Log.v("CURRENT LOCATION 1: ", "lat=" + latitude + " lng=" + longitude);
+        if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            setLocation(location);
+            Log.v("CURRENT LOCATION 1: ", "lat=" + latitude + " lng=" + longitude);
+        }else{
+            // GEOFIRE TEST VARS (S.E.L.)
+            latitude = 40.0016740;
+            longitude =-83.0134160;
+            geoFire.setLocation("currentLocation", new GeoLocation(latitude, longitude));
+            Toast.makeText(this, "No GPS signal available", Toast.LENGTH_SHORT).show();
+        }
+
 
 
         mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.tool_bar);
