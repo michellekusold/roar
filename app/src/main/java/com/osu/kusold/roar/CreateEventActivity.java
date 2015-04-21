@@ -144,8 +144,13 @@ public class CreateEventActivity extends ActionBarActivity {
     private View.OnClickListener eventSubmit =new View.OnClickListener(){
         @Override
         public void onClick(View v) {
-            submitEvent();
-            switchToEventFeed();
+            if (isInternetAvailable()) {
+                submitEvent();
+                switchToEventFeed();
+            }
+            else{
+                Toast.makeText(getApplicationContext(), "No internet connection present :(", Toast.LENGTH_LONG).show();
+            }
         }
     };
 
@@ -193,88 +198,84 @@ public class CreateEventActivity extends ActionBarActivity {
 
     /* Stores the event's information as well as location details in the DB */
     private void submitEvent() {
-        if (isInternetAvailable()) {
-            // Create Event Child (push generates a unique id for events (like users))
-            // The eventId is then used as the key in GeoFire, and this is how we get the
-            // key for nearby events.
-            fRefNewEvent = fRefEvents.push();
-            String eventId = fRefNewEvent.getKey();
-            // store the event id in the user created events DB
-            mUid = fRef.getAuth().getUid();
-            fRefUser = fRef.child("users").child(mUid);
+        // Create Event Child (push generates a unique id for events (like users))
+        // The eventId is then used as the key in GeoFire, and this is how we get the
+        // key for nearby events.
+        fRefNewEvent = fRefEvents.push();
+        String eventId = fRefNewEvent.getKey();
+        // store the event id in the user created events DB
+        mUid = fRef.getAuth().getUid();
+        fRefUser = fRef.child("users").child(mUid);
 
-            // Event address and Geocoding
-            Firebase fRefAddr1 = fRefNewEvent.child("address1");
-            try {
-                Geocoder geocoder = new Geocoder(this);
-                //String theEventAddress = mEventVenue.getText().toString() + " " + mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
-                String theEventAddress = mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
-                Log.v("GeoCoder", "Address that will be input to GeoCoder: " + theEventAddress);
-                List<Address> address = geocoder.getFromLocationName(theEventAddress, 1);
-                if (address != null && address.size() > 0) {
-                    Log.v("GeoCoder", "GeoCoder found at least 1 address associated with the event info.");
-                    Address mAddr = address.get(0);
-                    Log.v("GeoCoder", "(Lat, Long): " + mAddr.getLatitude() + " , " + mAddr.getLongitude());
-                    fRefAddr1.child("readable").setValue(theEventAddress);
-                    geoLat = mAddr.getLatitude();
-                    geoLong = mAddr.getLongitude();
-                    fRefAddr1.child("latitude").setValue(geoLat);
-                    fRefAddr1.child("longitude").setValue(geoLong);
+        // Event address and Geocoding
+        Firebase fRefAddr1 = fRefNewEvent.child("address1");
+        try {
+            Geocoder geocoder = new Geocoder(this);
+            //String theEventAddress = mEventVenue.getText().toString() + " " + mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
+            String theEventAddress = mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
+            Log.v("GeoCoder", "Address that will be input to GeoCoder: " + theEventAddress);
+            List<Address> address = geocoder.getFromLocationName(theEventAddress, 1);
+            if (address != null && address.size() > 0) {
+                Log.v("GeoCoder", "GeoCoder found at least 1 address associated with the event info.");
+                Address mAddr = address.get(0);
+                Log.v("GeoCoder", "(Lat, Long): " + mAddr.getLatitude() + " , " + mAddr.getLongitude());
+                fRefAddr1.child("readable").setValue(theEventAddress);
+                geoLat = mAddr.getLatitude();
+                geoLong = mAddr.getLongitude();
+                fRefAddr1.child("latitude").setValue(geoLat);
+                fRefAddr1.child("longitude").setValue(geoLong);
 
-                } else {
-                    Log.v("GeoCoder", "GeoCoder found 0 address associated with the event info.");
-                    fRefAddr1.child("latitude").setValue(0);
-                    fRefAddr1.child("longitude").setValue(0);
-                }
-            } catch (Exception ex) {
-                Log.v("CreateEventActivity", "Error: " + ex.toString());
-            }
-
-            // Other event info
-            fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
-            fRefNewEvent.child("name").setValue(mEventName.getText().toString());
-            fRefNewEvent.child("venue").setValue(mEventVenue.getText().toString());
-            fRefNewEvent.child("city").setValue(mEventCity.getText().toString());
-            fRefNewEvent.child("zip").setValue(mEventZip.getText().toString());
-            fRefNewEvent.child("cost").setValue(mEventCost.getText().toString());
-            fRefNewEvent.child("category").setValue(mCategoryOptions.getSelectedItem().toString());
-            fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
-            fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
-            fRefNewEvent.child("date").setValue(mEventDate.getCalendarView().getDate());
-            fRefNewEvent.child("phone").setValue(mPhoneNumber.getText().toString());
-            fRefNewEvent.child("email").setValue(mEmailAddress.getText().toString());
-            fRefNewEvent.child("currentAttendance").setValue(1); //No people are attending at creation
-            fRefNewEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
-            if (mEventTime.getCurrentMinute() < 10) {
-                fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + "0" + mEventTime.getCurrentMinute().toString());
             } else {
-                fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + mEventTime.getCurrentMinute().toString());
+                Log.v("GeoCoder", "GeoCoder found 0 address associated with the event info.");
+                fRefAddr1.child("latitude").setValue(0);
+                fRefAddr1.child("longitude").setValue(0);
             }
-            fRefUser.child("profile").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    Map<String, Object> profileData = (Map<String, Object>) dataSnapshot.getValue();
-                    fRefNewEvent.child("thumbnail").setValue(profileData.get("photo_thumbnail").toString());
-                }
+        }catch (Exception ex) {
+            Log.v("CreateEventActivity", "Error: " + ex.toString());
+        }
 
-                @Override
-                public void onCancelled(FirebaseError firebaseError) {
-
-                }
-            });
-
-            // Submit to GeoFire
-            geoFire.setLocation(eventId, new GeoLocation(geoLat, geoLong));
-
-            // Update user information with event
-            fRefUser.child("events").child(eventId).setValue("created");
-
-            // Update attendance information with host
-            fRef.child("attendance").child(eventId).child(fRef.getAuth().getUid()).setValue("host");
+        // Other event info
+        fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
+        fRefNewEvent.child("name").setValue(mEventName.getText().toString());
+        fRefNewEvent.child("venue").setValue(mEventVenue.getText().toString());
+        fRefNewEvent.child("city").setValue(mEventCity.getText().toString());
+        fRefNewEvent.child("zip").setValue(mEventZip.getText().toString());
+        fRefNewEvent.child("cost").setValue(mEventCost.getText().toString());
+        fRefNewEvent.child("category").setValue(mCategoryOptions.getSelectedItem().toString());
+        fRefNewEvent.child("description").setValue(mEventDescription.getText().toString());
+        fRefNewEvent.child("host").setValue(fRef.getAuth().getUid());
+        fRefNewEvent.child("date").setValue(mEventDate.getCalendarView().getDate());
+        fRefNewEvent.child("phone").setValue(mPhoneNumber.getText().toString());
+        fRefNewEvent.child("email").setValue(mEmailAddress.getText().toString());
+        fRefNewEvent.child("currentAttendance").setValue(1); //No people are attending at creation
+        fRefNewEvent.child("maxAttendance").setValue(mEventMaxAttendance.getText().toString());
+        if (mEventTime.getCurrentMinute() < 10){
+            fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + "0" + mEventTime.getCurrentMinute().toString());
         }
         else {
-            Toast.makeText(getApplicationContext(), "No internet connection present :(", Toast.LENGTH_LONG).show();
+            fRefNewEvent.child("time").setValue(mEventTime.getCurrentHour().toString() + mEventTime.getCurrentMinute().toString());
         }
+        fRefUser.child("profile").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String, Object> profileData = (Map<String, Object>) dataSnapshot.getValue();
+                fRefNewEvent.child("thumbnail").setValue(profileData.get("photo_thumbnail").toString());
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        // Submit to GeoFire
+        geoFire.setLocation(eventId, new GeoLocation(geoLat, geoLong));
+
+        // Update user information with event
+        fRefUser.child("events").child(eventId).setValue("created");
+
+        // Update attendance information with host
+        fRef.child("attendance").child(eventId).child(fRef.getAuth().getUid()).setValue("host");
     }
 
     private void switchToEventFeed() {
