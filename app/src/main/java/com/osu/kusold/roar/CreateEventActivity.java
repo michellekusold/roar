@@ -1,9 +1,12 @@
 package com.osu.kusold.roar;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -22,6 +25,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -140,8 +144,13 @@ public class CreateEventActivity extends ActionBarActivity {
     private View.OnClickListener eventSubmit =new View.OnClickListener(){
         @Override
         public void onClick(View v) {
-            submitEvent();
-            switchToEventFeed();
+            if (isInternetAvailable()) {
+                submitEvent();
+                switchToEventFeed();
+            }
+            else{
+                Toast.makeText(getApplicationContext(), "No internet connection present :(", Toast.LENGTH_LONG).show();
+            }
         }
     };
 
@@ -204,13 +213,13 @@ public class CreateEventActivity extends ActionBarActivity {
             Geocoder geocoder = new Geocoder(this);
             //String theEventAddress = mEventVenue.getText().toString() + " " + mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
             String theEventAddress = mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
-            fRefAddr1.child("readable").setValue(theEventAddress);
             Log.v("GeoCoder", "Address that will be input to GeoCoder: " + theEventAddress);
             List<Address> address = geocoder.getFromLocationName(theEventAddress, 1);
             if (address != null && address.size() > 0) {
                 Log.v("GeoCoder", "GeoCoder found at least 1 address associated with the event info.");
                 Address mAddr = address.get(0);
                 Log.v("GeoCoder", "(Lat, Long): " + mAddr.getLatitude() + " , " + mAddr.getLongitude());
+                fRefAddr1.child("readable").setValue(theEventAddress);
                 geoLat = mAddr.getLatitude();
                 geoLong = mAddr.getLongitude();
                 fRefAddr1.child("latitude").setValue(geoLat);
@@ -278,6 +287,12 @@ public class CreateEventActivity extends ActionBarActivity {
         fRef.unauth();
         Intent intent = new Intent(CreateEventActivity.this, LoginActivity.class);
         startActivity(intent);
+    }
+
+    public boolean isInternetAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
 }

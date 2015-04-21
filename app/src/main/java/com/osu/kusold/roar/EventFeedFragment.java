@@ -5,6 +5,8 @@ import android.app.Fragment;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -84,7 +86,13 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         mGeoSortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sortByLocation();
+                Log.v("CLICK", "clickclickclick");
+                if (isInternetAvailable()) {
+                    sortByLocation();
+                }
+                else {
+                    Toast.makeText(getActivity(), "No internet connection present :(", Toast.LENGTH_LONG).show();
+                }
                 mAdapter.notifyDataSetChanged();
             }
         });
@@ -280,5 +288,10 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         }
     }
 
+    public boolean isInternetAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 
 }

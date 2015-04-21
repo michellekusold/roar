@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -29,11 +31,13 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +104,12 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         mEmailSignUpButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptSignUp();
+                if (isInternetAvailable()) {
+                    attemptSignUp();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "No internet connection present :(", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -398,9 +407,11 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         }
     }
 
-
-
-
+    public boolean isInternetAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 }
 
 

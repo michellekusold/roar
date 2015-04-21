@@ -1,6 +1,9 @@
 package com.osu.kusold.roar;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -118,22 +121,26 @@ public class ViewEventActivity extends ActionBarActivity {
         joinEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Firebase fRefAttendingEventUser = fRef.child("attendance").child(eventId).child(fRef.getAuth().getUid());
+                if (isInternetAvailable()) {
+                    Firebase fRefAttendingEventUser = fRef.child("attendance").child(eventId).child(fRef.getAuth().getUid());
 
-                if(eventHost.equals(fRef.getAuth().getUid())) {
-                    Toast.makeText(getApplicationContext(), "You are hosting the event." , Toast.LENGTH_SHORT).show();
-                } else if(userAttendanceStatus != null) {
-                    if(userAttendanceStatus.equals("attending")) {
-                        Toast.makeText(getApplicationContext(), "You are already attending the event." , Toast.LENGTH_SHORT).show();
+                    if (eventHost.equals(fRef.getAuth().getUid())) {
+                        Toast.makeText(getApplicationContext(), "You are hosting the event.", Toast.LENGTH_SHORT).show();
+                    } else if (userAttendanceStatus != null) {
+                        if (userAttendanceStatus.equals("attending")) {
+                            Toast.makeText(getApplicationContext(), "You are already attending the event.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        fRefUser.child("events").child(eventId).setValue("attending");
+                        fRefAttendingEventUser.setValue("attending");
+                        int numAttend = Integer.parseInt(eventCurrentAttendance);
+                        numAttend++;
+                        fRefEvent.child("currentAttendance").setValue(Integer.toString(numAttend));
+                        Toast.makeText(getApplicationContext(), "You have joined the event.", Toast.LENGTH_SHORT).show();
                     }
                 }
-                else {
-                    fRefUser.child("events").child(eventId).setValue("attending");
-                    fRefAttendingEventUser.setValue("attending");
-                    int numAttend = Integer.parseInt(eventCurrentAttendance);
-                    numAttend++;
-                    fRefEvent.child("currentAttendance").setValue(Integer.toString(numAttend));
-                    Toast.makeText(getApplicationContext(), "You have joined the event." , Toast.LENGTH_SHORT).show();
+                else{
+                    Toast.makeText(getApplicationContext(), "No internet connection present :(", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -189,5 +196,11 @@ public class ViewEventActivity extends ActionBarActivity {
     private void switchToEditEvent() {
         Intent intent = new Intent(this, CreateEventActivity.class);
         startActivity(intent);
+    }
+
+    public boolean isInternetAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

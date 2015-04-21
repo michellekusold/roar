@@ -2,7 +2,10 @@ package com.osu.kusold.roar;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -80,22 +83,26 @@ public class ViewEventFragment extends Fragment {
         joinEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Firebase fRefAttendingEventUser = fRef.child("attendance").child(eventId).child(fRef.getAuth().getUid());
+                if (isInternetAvailable()) {
+                    Firebase fRefAttendingEventUser = fRef.child("attendance").child(eventId).child(fRef.getAuth().getUid());
 
-                if(eventHost.equals(fRef.getAuth().getUid())) {
-                    Toast.makeText(getActivity(), "You are hosting the event.", Toast.LENGTH_SHORT).show();
-                } else if(userAttendanceStatus != null) {
-                    if(userAttendanceStatus.equals("attending")) {
-                        Toast.makeText(getActivity(), "You are already attending the event." , Toast.LENGTH_SHORT).show();
+                    if (eventHost.equals(fRef.getAuth().getUid())) {
+                        Toast.makeText(getActivity(), "You are hosting the event.", Toast.LENGTH_SHORT).show();
+                    } else if (userAttendanceStatus != null) {
+                        if (userAttendanceStatus.equals("attending")) {
+                            Toast.makeText(getActivity(), "You are already attending the event.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        fRefUser.child("events").child(eventId).setValue("attending");
+                        fRefAttendingEventUser.setValue("attending");
+                        int numAttend = Integer.parseInt(eventCurrentAttendance);
+                        numAttend++;
+                        fRefEvent.child("currentAttendance").setValue(Integer.toString(numAttend));
+                        Toast.makeText(getActivity(), "You have joined the event.", Toast.LENGTH_SHORT).show();
                     }
                 }
                 else {
-                    fRefUser.child("events").child(eventId).setValue("attending");
-                    fRefAttendingEventUser.setValue("attending");
-                    int numAttend = Integer.parseInt(eventCurrentAttendance);
-                    numAttend++;
-                    fRefEvent.child("currentAttendance").setValue(Integer.toString(numAttend));
-                    Toast.makeText(getActivity(), "You have joined the event." , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "No internet connection present :(", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -226,4 +233,9 @@ public class ViewEventFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
+    public boolean isInternetAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 }
