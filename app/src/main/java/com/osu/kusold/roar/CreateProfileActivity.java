@@ -1,5 +1,6 @@
 package com.osu.kusold.roar;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -81,25 +82,30 @@ public class CreateProfileActivity extends ActionBarActivity {
         fRefProfile.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                // do some stuff once
-                Map<String, Object> profileData = (Map<String, Object>) snapshot.getValue();
-                // profileData will not be null if the user is editing the profile
-                if(profileData != null) {
-                    name = profileData.get("name").toString();
-                    gender = profileData.get("gender").toString();
-                    age = profileData.get("age").toString();
-                    profilePic = profileData.get("photo").toString();
+                // check to make sure that prev profile data only gets populated if it exists
+                SharedPreferences settings = getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE);
+                boolean isProfileComplete = settings.getBoolean(getString(R.string.is_profile_info_complete), false);
+                if(isProfileComplete) {
+                    // do some stuff once
+                    Map<String, Object> profileData = (Map<String, Object>) snapshot.getValue();
+                    // profileData will not be null if the user is editing the profile
+                    if (profileData != null) {
+                        name = profileData.get("name").toString();
+                        gender = profileData.get("gender").toString();
+                        age = profileData.get("age").toString();
+                        profilePic = profileData.get("photo").toString();
 
-                    // set image
-                    Drawable dPic = decodeBase64(profilePic);
-                    mProfilePic.setImageDrawable(dPic);
-                    // set name
-                    mNameView.setText(name);
-                    // set age
-                    mAgePicker.setValue(Integer.parseInt(age));
-                    // set gender
-                    int spinnerPosition = adapter.getPosition(gender);
-                    mGenderOptions.setSelection(spinnerPosition);
+                        // set image
+                        Drawable dPic = decodeBase64(profilePic);
+                        mProfilePic.setImageDrawable(dPic);
+                        // set name
+                        mNameView.setText(name);
+                        // set age
+                        mAgePicker.setValue(Integer.parseInt(age));
+                        // set gender
+                        int spinnerPosition = adapter.getPosition(gender);
+                        mGenderOptions.setSelection(spinnerPosition);
+                    }
                 }
             }
             @Override
@@ -279,20 +285,20 @@ public class CreateProfileActivity extends ActionBarActivity {
         Log.d("CreateProfileActivity", "Profile picture full resolution is size (bytes): " + byteArray.length);
 
         byteBuffer.reset();
-        profBmp.compress(Bitmap.CompressFormat.JPEG, 0, byteBuffer);
+        profBmp.compress(Bitmap.CompressFormat.JPEG, 10, byteBuffer);
         byteArray = byteBuffer.toByteArray();
         String thumbnailImageFile = Base64.encodeToString(byteArray, Base64.DEFAULT);
         Log.d("CreateProfileActivity", "Profile picture thumbnail is size (bytes): " + byteArray.length);
 
         // store the user's profile information
-        fRefProfile.child("photo").setValue(fullImageFile);
+        //fRefProfile.child("photo").setValue(fullImageFile);
         fRefProfile.child("photo_thumbnail").setValue(thumbnailImageFile);
         fRefProfile.child("name").setValue(mNameView.getText().toString());
         fRefProfile.child("age").setValue(mAgePicker.getValue());
         fRefProfile.child("gender").setValue(mGenderOptions.getSelectedItem().toString());
 
         SharedPreferences.Editor editor = getApplicationContext().getSharedPreferences(getString(R.string.share_pref_file), MODE_PRIVATE).edit();
-        editor.putBoolean(fRef.getAuth().getUid() + getString(R.string.is_profile_info_complete), true);
+        editor.putBoolean(getString(R.string.is_profile_info_complete), true);
         editor.apply();
     }
 

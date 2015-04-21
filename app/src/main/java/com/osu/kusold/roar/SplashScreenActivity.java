@@ -49,7 +49,14 @@ public class SplashScreenActivity extends Activity {
                 else {
                     // If logged in
                     if(fRef.getAuth() != null) {
+                        // see if the profile has been created
+                        boolean isProfileComplete = settings.getBoolean(getString(R.string.is_profile_info_complete), false);
+                        if(isProfileComplete) {
                             i = new Intent(SplashScreenActivity.this, EventFeedActivity.class);
+                        }
+                        else{
+                            i = new Intent(SplashScreenActivity.this, CreateProfileActivity.class);
+                        }
                     } else {
                         // User has account, but not logged in
                         i = new Intent(SplashScreenActivity.this, LoginActivity.class);

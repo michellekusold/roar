@@ -2,7 +2,9 @@ package com.osu.kusold.roar;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -10,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +56,15 @@ public class ProfileFragment extends Fragment {
         mUid = fRef.getAuth().getUid();
         fRefUser = fRef.child("users").child(mUid);
         fRefProfile = fRefUser.child("profile");
+
+        // Ensure Profile has been created in case the user has gotten here without doing so --> prevents crashes
+        SharedPreferences settings = this.getActivity().getSharedPreferences(getString(R.string.share_pref_file), Context.MODE_PRIVATE);
+        boolean isProfileComplete = settings.getBoolean(getString(R.string.is_profile_info_complete), false);
+        Log.v("PROFILE", Boolean.toString(isProfileComplete));
+        if(!isProfileComplete){
+            Intent i = new Intent(this.getActivity(), CreateProfileActivity.class);
+            startActivity(i);
+        }
     }
 
     @Override
@@ -75,10 +87,18 @@ public class ProfileFragment extends Fragment {
                 if(isAdded()) {
                     // do some stuff once
                     Map<String, Object> profileData = (Map<String, Object>) snapshot.getValue();
-                    name = profileData.get("name").toString();
-                    gender = profileData.get("gender").toString();
-                    age = profileData.get("age").toString();
-                    profilePic = profileData.get("photo").toString();
+                    if(profileData.containsKey("name")) {
+                        name = profileData.get("name").toString();
+                    }
+                    if(profileData.containsKey("gender")) {
+                        gender = profileData.get("gender").toString();
+                    }
+                    if(profileData.containsKey("age")) {
+                        age = profileData.get("age").toString();
+                    }
+                    if(profileData.containsKey("photo_thumbnail")) {
+                        profilePic = profileData.get("photo_thumbnail").toString();
+                    }
 
                     mProfilePic = (ImageView) view.findViewById(R.id.profileImg);
                     Drawable dPic = decodeBase64(profilePic);

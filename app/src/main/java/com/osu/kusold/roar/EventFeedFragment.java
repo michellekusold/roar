@@ -2,10 +2,7 @@ package com.osu.kusold.roar;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -21,16 +18,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
-import android.widget.TextView;
 
 import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
-import com.firebase.geofire.GeoQueryEventListener;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
 /**
  * A fragment representing a list of Items.
@@ -51,6 +45,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     private Location location;
     EventFetchTask eventFetchTask;
     private Button mGeoSortButton;
+    LimitedGeoQueryEventListener mLimitedGeoQuery;
 
     public final static String EVENT_UID = "com.osu.kusold.roar.EVENT_UID_MESSAGE";
 
@@ -80,10 +75,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         fRef = new Firebase(getString(R.string.firebase_ref));
         fRefEvents = fRef.child("events");
         geoFire = new GeoFire(fRef.child("GeoFire"));
-
-        if(savedInstanceState == null) {
-            mAdapter = new EventPostAdapter(getActivity(), new ArrayList<EventPost>());
-        }
+        mAdapter = new EventPostAdapter(getActivity(), new ArrayList<EventPost>());
     }
 
     @Override
@@ -105,7 +97,7 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         *   A swipe to refresh layout wraps around the list view to give refresh animation
         *   and provides a callback method for onRefresh so we know when to pull from Firebase.
          */
-                mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.event_feed_swipe_refresh_layout);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.event_feed_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -163,19 +155,6 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     }
 
     /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText(CharSequence emptyText) {
-        View emptyView = mListView.getEmptyView();
-
-        if (emptyView instanceof TextView) {
-            ((TextView) emptyView).setText(emptyText);
-        }
-    }
-
-    /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
@@ -200,15 +179,15 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
     public void removeRefreshGeoQueryListener() {
         if(geoQuery != null) {
             geoQuery.removeAllListeners();
-            geoQuery.setRadius(0.0);
         }
         mAdapter.notifyDataSetChanged();
         mSwipeRefreshLayout.setRefreshing(false);
-        geoQuery.removeAllListeners();
-        geoQuery.setRadius(0.0);
     }
 
     public void refreshEventFeed() {
+        if(mLimitedGeoQuery != null) {
+            mLimitedGeoQuery.setIgnoreEvents();
+        }
         mAdapter.clear();
         eventFetchTask = new EventFetchTask(getActivity(), this);
         eventFetchTask.execute();
@@ -238,7 +217,6 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
 
         Context mContext;
         EventFeedFragment mEventFeedFragment;
-        GeoQueryEventListener mLimitedQuery;
 
         EventFetchTask(Context context, EventFeedFragment fragment) {
             mContext = context.getApplicationContext();
@@ -263,8 +241,8 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
             // 20 km radius search for events
             geoQuery = geoFire.queryAtLocation(new GeoLocation(latitude, longitude), 20.0);
             // limit query to at most 20 results
-            mLimitedQuery = new LimitedGeoQueryEventListener(mEventFeedFragment, 20);
-            geoQuery.addGeoQueryEventListener(mLimitedQuery);
+            mLimitedGeoQuery = new LimitedGeoQueryEventListener(mEventFeedFragment, 20);
+            geoQuery.addGeoQueryEventListener(mLimitedGeoQuery);
             SystemClock.sleep(3000);
             Log.v("EventFetchTask", "Exit doBackgroundProcess");
             return true;
@@ -272,12 +250,13 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
 
         @Override
         protected void onPostExecute(Boolean success) {
-            mEventFeedFragment.removeRefreshGeoQueryListener();
+            mSwipeRefreshLayout.setRefreshing(false);
             Log.v("EventFetchTask", "Exit onPostExecute");
         }
 
         @Override
         protected void onCancelled() {
+            Log.v("EventFetchTask", "Exit onCancelled");
         }
     }
 
