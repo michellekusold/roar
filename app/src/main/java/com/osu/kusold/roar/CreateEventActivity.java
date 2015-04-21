@@ -204,13 +204,13 @@ public class CreateEventActivity extends ActionBarActivity {
             Geocoder geocoder = new Geocoder(this);
             //String theEventAddress = mEventVenue.getText().toString() + " " + mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
             String theEventAddress = mEventAddress1.getText().toString() + " " + mEventCity.getText().toString() + " " + mEventZip.getText().toString();
+            fRefAddr1.child("readable").setValue(theEventAddress);
             Log.v("GeoCoder", "Address that will be input to GeoCoder: " + theEventAddress);
             List<Address> address = geocoder.getFromLocationName(theEventAddress, 1);
             if (address != null && address.size() > 0) {
                 Log.v("GeoCoder", "GeoCoder found at least 1 address associated with the event info.");
                 Address mAddr = address.get(0);
                 Log.v("GeoCoder", "(Lat, Long): " + mAddr.getLatitude() + " , " + mAddr.getLongitude());
-                fRefAddr1.child("readable").setValue(theEventAddress);
                 geoLat = mAddr.getLatitude();
                 geoLong = mAddr.getLongitude();
                 fRefAddr1.child("latitude").setValue(geoLat);
