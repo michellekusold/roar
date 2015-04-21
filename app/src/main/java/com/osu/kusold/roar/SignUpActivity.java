@@ -64,6 +64,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         Intent intent = getIntent();
         setContentView(R.layout.activity_sign_up);
 
+        // for UX improvements --> doesn't allow the keyboard to automatically pop up
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         Firebase.setAndroidContext(this);
@@ -107,6 +108,10 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         mProgressView = findViewById(R.id.login_progress);
     }
 
+    /*
+     * Switches the Activity and the View over to Login and copies any
+     * information the user has already entered.
+     */
     private void switchToLogin() {
         Intent intent = new Intent(this, LoginActivity.class);
         String emailAddress = mEmailView.getText().toString();
@@ -125,7 +130,10 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
      */
     public void attemptSignUp() {
         if (mAuthTask != null) {
-            // This means they're logged in, so start intent for Event Newsfeed?
+            // This means they're logged in, so start intent for Eventfeed
+            // this case shouldn't really happen ever due to splashscreen control
+            Intent intent = new Intent(this, EventFeedActivity.class);
+            startActivity(intent);
             return;
         }
 
