@@ -93,7 +93,7 @@ public class CreateProfileActivity extends ActionBarActivity {
                         name = profileData.get("name").toString();
                         gender = profileData.get("gender").toString();
                         age = profileData.get("age").toString();
-                        profilePic = profileData.get("photo").toString();
+                        profilePic = profileData.get("photo_thumbnail").toString();
 
                         // set image
                         Drawable dPic = decodeBase64(profilePic);
