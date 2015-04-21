@@ -3,13 +3,15 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleHome" value="C:\Program Files\Android\Android Studio\gradle\gradle-2.2.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/SplashScreenActivityTest" />
+            <option value="$PROJECT_DIR$/Roar-robotium create account" />
+            <option value="$PROJECT_DIR$/Roar-robotium login and create event" />
+            <option value="$PROJECT_DIR$/Roar_Robotium_Test_Cases" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>

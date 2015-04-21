@@ -1,3 +1,5 @@
 include ':app'
 
-include ':SplashScreenActivityTest'
+include ':Roar-robotium login and create event'
+include ':Roar-robotium create account'
+include ':Roar_Robotium_Test_Cases'
