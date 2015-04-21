@@ -5,6 +5,8 @@ import android.app.Fragment;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -18,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
+import android.widget.Toast;
 
 import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
@@ -87,9 +90,14 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         mGeoSortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v("CLICK", "clickclickclick");
-                sortByLocation();
-                mAdapter.notifyDataSetChanged();
+                if (isInternetAvailable()) {
+                    Log.v("CLICK", "clickclickclick");
+                    sortByLocation();
+                    mAdapter.notifyDataSetChanged();
+                }
+                else {
+                    Toast.makeText(getActivity(), "No internet connection present :(", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -268,5 +276,10 @@ public class EventFeedFragment extends Fragment implements AbsListView.OnItemCli
         mAdapter.sort(cmp);
     }
 
+    public boolean isInternetAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 
 }

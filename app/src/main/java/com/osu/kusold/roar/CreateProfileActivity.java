@@ -169,8 +169,7 @@ public class CreateProfileActivity extends ActionBarActivity {
                 imgBtn.setImageDrawable(sizedImg);
 
             } else {
-                Toast.makeText(this, "You haven't picked Image",
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "You haven't picked Image", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
