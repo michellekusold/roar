@@ -373,6 +373,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             }
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
+            finish();
         }
 
         @Override

@@ -137,6 +137,7 @@ public class EventFeedActivity extends ActionBarActivity implements EventFeedFra
         fRef.unauth();
         Intent intent = new Intent(EventFeedActivity.this, LoginActivity.class);
         startActivity(intent);
+        finish();
     }
 
     private void createEvent() {

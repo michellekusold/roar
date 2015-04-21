@@ -385,6 +385,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                         intent.putExtra(LoginActivity.LOGIN_ERROR_MESSAGE, true);
                     }
                     startActivity(intent);
+                    finish();
                 } // public void run
             }, 3000); // Handler
 
